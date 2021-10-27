@@ -101,6 +101,8 @@ void CC4::Holster(int skiplocal)
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 		m_bHasShield = false;
 	}
+
+	CBasePlayerWeapon::Holster();
 }
 
 void CC4::PrimaryAttack()
