@@ -1404,7 +1404,7 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 	m_pPlayer->m_bResumeZoom = false;
 
 #ifdef REGAMEDLL_FIXES
-	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4)
+	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4 && m_pPlayer->pev->weaponmodel)
 	{
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 	}
