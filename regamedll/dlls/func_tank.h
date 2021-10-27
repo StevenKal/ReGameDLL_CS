@@ -105,6 +105,8 @@ public:
 	static Vector m_TankSpread[];
 
 protected:
+	friend class CFuncTankControls;
+
 	CBasePlayer *m_pController;
 	float m_flNextAttack;
 	Vector m_vecControllerUsePos;
