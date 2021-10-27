@@ -569,7 +569,7 @@ Vector CBasePlayer::GetGunPosition()
 
 bool CBasePlayer::IsHittingShield(Vector &vecDirection, TraceResult *ptr)
 {
-	if ((m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4) || !HasShield())
+	if (!HasShield() || pev->gamestate == HITGROUP_SHIELD_DISABLED)
 		return false;
 
 	if (ptr->iHitgroup == HITGROUP_SHIELD)
