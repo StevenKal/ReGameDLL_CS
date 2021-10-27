@@ -569,7 +569,13 @@ Vector CBasePlayer::GetGunPosition()
 
 bool CBasePlayer::IsHittingShield(Vector &vecDirection, TraceResult *ptr)
 {
+#ifdef REGAMEDLL_FIXES
+	if (!HasShield()
+	|| pev->gamestate == HITGROUP_SHIELD_DISABLED
+	|| (m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4))
+#else
 	if ((m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4) || !HasShield())
+#endif
 		return false;
 
 	if (ptr->iHitgroup == HITGROUP_SHIELD)
@@ -2431,7 +2437,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(SetAnimation)(PLAYER_ANIM playerAnim)
 	if (!pev->modelindex)
 		return;
 
+#ifdef REGAMEDLL_FIXES
+	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield() && pev->gamestate == HITGROUP_SHIELD_ENABLED)
+#else
 	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield())
+#endif
 		return;
 
 	if (playerAnim != PLAYER_FLINCH && playerAnim != PLAYER_LARGE_FLINCH && m_flFlinchTime > gpGlobals->time && pev->health > 0.0f)
@@ -5040,6 +5050,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(PostThink)()
 		}
 	}
 
+#ifdef REGAMEDLL_FIXES
+	// Handle use events
+	PlayerUse();
+	ImpulseCommands();
+#endif
 	// do weapon stuff
 	ItemPostFrame();
 
@@ -6296,8 +6311,10 @@ void EXT_FUNC CBasePlayer::__API_HOOK(ImpulseCommands)()
 {
 	TraceResult tr;
 
+#ifndef REGAMEDLL_FIXES
 	// Handle use events
 	PlayerUse();
+#endif
 
 	int iImpulse = pev->impulse;
 
@@ -6904,7 +6921,9 @@ void CBasePlayer::ItemPostFrame()
 #endif
 		return;
 
+#ifndef REGAMEDLL_FIXES
 	ImpulseCommands();
+#endif
 
 	if (m_pActiveItem)
 		m_pActiveItem->ItemPostFrame();
@@ -6912,7 +6931,7 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory(int iAmmoIndex)
 {
-	if (iAmmoIndex == -1)
+	if (iAmmoIndex <= -1)
 		return -1;
 
 	return m_rgAmmo[iAmmoIndex];
