@@ -1161,7 +1161,6 @@ void CBasePlayerItem::Holster(int skiplocal)
 
 		if(m_pPlayer->HasShield())
 		{
-			m_pPlayer->m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
 			m_pPlayer->m_bShieldDrawn = false;
 			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		}
@@ -1568,7 +1567,7 @@ void CBasePlayerWeapon::Holster(int skiplocal)
 
 		if(m_pPlayer->HasShield())
 		{
-			m_pPlayer->m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
+			m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
 			m_pPlayer->m_bShieldDrawn = false;
 			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		}
