@@ -80,11 +80,7 @@ BOOL CKnife::Deploy()
 	m_pPlayer->m_bShieldDrawn = false;
 
 	if (m_pPlayer->HasShield())
-	{
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
-
 		return DefaultDeploy("models/shield/v_shield_knife.mdl", "models/shield/p_shield_knife.mdl", KNIFE_SHIELD_DRAW, "shieldknife", UseDecrement() != FALSE);
-	}
 	else
 		return DefaultDeploy("models/v_knife.mdl", "models/p_knife.mdl", KNIFE_DRAW, "knife", UseDecrement() != FALSE);
 }
