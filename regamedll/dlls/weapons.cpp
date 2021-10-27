@@ -1119,6 +1119,12 @@ void CBasePlayerItem::DestroyItem()
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT)) == 0) {
 				m_pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
 			}
+			// Fix problem when we throw our last grenade right before using a tank and when we unuse it
+			// we no longer have an active item and we are unable to select another via mouse wheel.
+			else if(m_pTank && m_pPlayer->HasWeapons())
+			{
+				g_pGameRules->GetNextBestWeapon(m_pPlayer, this);
+			}
 #endif
 
 		}
