@@ -1154,8 +1154,18 @@ void CBasePlayerItem::Kill()
 
 void CBasePlayerItem::Holster(int skiplocal)
 {
-	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->weaponmodel = 0;
+	if(m_pPlayer)
+	{
+		m_pPlayer->pev->viewmodel = 0;
+		m_pPlayer->pev->weaponmodel = 0;
+
+		if(m_pPlayer->HasShield())
+		{
+			m_pPlayer->m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
+			m_pPlayer->m_bShieldDrawn = false;
+			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
+		}
+	}
 }
 
 void CBasePlayerItem::AttachToPlayer(CBasePlayer *pPlayer)
@@ -1550,8 +1560,19 @@ void CBasePlayerWeapon::Holster(int skiplocal)
 {
 	// cancel any reload in progress.
 	m_fInReload = FALSE;
-	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->weaponmodel = 0;
+
+	if(m_pPlayer)
+	{
+		m_pPlayer->pev->viewmodel = 0;
+		m_pPlayer->pev->weaponmodel = 0;
+
+		if(m_pPlayer->HasShield())
+		{
+			m_pPlayer->m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
+			m_pPlayer->m_bShieldDrawn = false;
+			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
+		}
+	}
 }
 
 // called by the new item with the existing item as parameter
