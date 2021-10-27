@@ -88,6 +88,14 @@ void CSmokeGrenade::Holster(int skiplocal)
 
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1;
+	
+	if (m_bHasShield)
+	{
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+		m_bHasShield = false;
+	}
+
+	CBasePlayerWeapon::Holster();
 }
 
 void CSmokeGrenade::PrimaryAttack()
