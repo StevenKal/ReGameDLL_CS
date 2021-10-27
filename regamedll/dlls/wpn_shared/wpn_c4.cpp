@@ -102,7 +102,9 @@ void CC4::Holster(int skiplocal)
 		m_bHasShield = false;
 	}
 
+#ifdef REGAMEDLL_FIXES
 	CBasePlayerWeapon::Holster();
+#endif
 }
 
 void CC4::PrimaryAttack()

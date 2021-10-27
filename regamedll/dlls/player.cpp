@@ -569,9 +569,13 @@ Vector CBasePlayer::GetGunPosition()
 
 bool CBasePlayer::IsHittingShield(Vector &vecDirection, TraceResult *ptr)
 {
+#ifdef REGAMEDLL_FIXES
 	if (!HasShield()
 	|| pev->gamestate == HITGROUP_SHIELD_DISABLED
 	|| (m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4))
+#else
+	if ((m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4) || !HasShield())
+#endif
 		return false;
 
 	if (ptr->iHitgroup == HITGROUP_SHIELD)
@@ -2433,7 +2437,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(SetAnimation)(PLAYER_ANIM playerAnim)
 	if (!pev->modelindex)
 		return;
 
+#ifdef REGAMEDLL_FIXES
 	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield() && pev->gamestate == HITGROUP_SHIELD_ENABLED)
+#else
+	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield())
+#endif
 		return;
 
 	if (playerAnim != PLAYER_FLINCH && playerAnim != PLAYER_LARGE_FLINCH && m_flFlinchTime > gpGlobals->time && pev->health > 0.0f)

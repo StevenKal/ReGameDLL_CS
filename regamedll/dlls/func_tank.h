@@ -105,7 +105,9 @@ public:
 	static Vector m_TankSpread[];
 
 protected:
+#ifdef REGAMEDLL_FIXES
 	friend class CFuncTankControls;
+#endif
 
 	CBasePlayer *m_pController;
 	float m_flNextAttack;

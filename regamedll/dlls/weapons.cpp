@@ -1159,11 +1159,13 @@ void CBasePlayerItem::Holster(int skiplocal)
 		m_pPlayer->pev->viewmodel = 0;
 		m_pPlayer->pev->weaponmodel = 0;
 
+#ifdef REGAMEDLL_FIXES
 		if(m_pPlayer->HasShield())
 		{
 			m_pPlayer->m_bShieldDrawn = false;
 			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		}
+#endif
 	}
 }
 
@@ -1380,7 +1382,7 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 		return FALSE;
 
 	m_pPlayer->TabulateAmmo();
-#ifdef REGAMEDLL_API
+#ifdef REGAMEDLL_FIXES
 	m_pPlayer->pev->viewmodel = ALLOC_STRING(szViewModel);
 	m_pPlayer->pev->weaponmodel = ALLOC_STRING(szWeaponModel);
 #else
@@ -1401,10 +1403,12 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 	m_pPlayer->m_iLastZoom = DEFAULT_FOV;
 	m_pPlayer->m_bResumeZoom = false;
 
-	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4/* && m_pPlayer->pev->viewmodel && m_pPlayer->pev->weaponmodel*/)
+#ifdef REGAMEDLL_FIXES
+	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4)
 	{
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 	}
+#endif
 
 	return TRUE;
 }
@@ -1570,12 +1574,14 @@ void CBasePlayerWeapon::Holster(int skiplocal)
 		m_pPlayer->pev->viewmodel = 0;
 		m_pPlayer->pev->weaponmodel = 0;
 
+#ifdef REGAMEDLL_FIXES
 		if(m_pPlayer->HasShield())
 		{
 			m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
 			m_pPlayer->m_bShieldDrawn = false;
 			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		}
+#endif
 	}
 }
 

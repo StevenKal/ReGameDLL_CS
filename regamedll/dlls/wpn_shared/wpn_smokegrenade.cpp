@@ -89,7 +89,9 @@ void CSmokeGrenade::Holster(int skiplocal)
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1;
 
+#ifdef REGAMEDLL_FIXES
 	CBasePlayerWeapon::Holster();
+#endif
 }
 
 void CSmokeGrenade::PrimaryAttack()

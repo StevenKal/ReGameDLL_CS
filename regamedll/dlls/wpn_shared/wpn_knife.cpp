@@ -89,7 +89,9 @@ void CKnife::Holster(int skiplocal)
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
 
+#ifdef REGAMEDLL_FIXES
 	CBasePlayerWeapon::Holster();
+#endif
 }
 
 NOXREF void CKnife::WeaponAnimation(int iAnimation)

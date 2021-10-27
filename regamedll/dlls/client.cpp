@@ -753,7 +753,11 @@ void Host_Say(edict_t *pEntity, BOOL teamonly)
 {
 	int j;
 	char *p;
+#ifdef REGAMEDLL_FIXES
 	char text[140];
+#else
+	char text[128];
+#endif
 	char szTemp[256];
 	const char *cpSay = "say";
 	const char *cpSayTeam = "say_team";
