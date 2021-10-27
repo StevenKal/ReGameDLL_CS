@@ -1401,6 +1401,11 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 	m_pPlayer->m_iLastZoom = DEFAULT_FOV;
 	m_pPlayer->m_bResumeZoom = false;
 
+	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4 && m_pPlayer->pev->weaponmodel)
+	{
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+	}
+
 	return TRUE;
 }
 
