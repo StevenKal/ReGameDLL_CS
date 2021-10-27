@@ -985,6 +985,9 @@ public:
 	bool ShieldSecondaryFire(int iUpAnim, int iDownAnim);
 	void SetPlayerShieldAnim();
 	void ResetPlayerShieldAnim();
+
+private:
+	bool m_bHasShield;
 };
 
 
@@ -1148,6 +1151,7 @@ public:
 
 public:
 	unsigned short m_usCreateExplosion;
+	bool m_bHasShield;
 };
 
 
@@ -1231,6 +1235,8 @@ private:
 
 	float m_flStabDistance;
 	float m_flSwingDistance;
+
+	bool m_bHasShield;
 };
 
 
@@ -1660,6 +1666,9 @@ public:
 
 public:
 	unsigned short m_usCreateSmoke;
+
+private:
+	bool m_bHasShield;
 };
 
 
