@@ -67,7 +67,6 @@ BOOL CHEGrenade::Deploy()
 
 	if (m_pPlayer->HasShield())
 	{
-		m_bHasShield = true;
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 
 		return DefaultDeploy("models/shield/v_shield_hegrenade.mdl", "models/shield/p_shield_hegrenade.mdl", HEGRENADE_DRAW, "shieldgren", UseDecrement() != FALSE);
@@ -92,12 +91,6 @@ void CHEGrenade::Holster(int skiplocal)
 
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1.0f;
-	
-	if (m_bHasShield)
-	{
-		m_bHasShield = false;
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
-	}
 
 	CBasePlayerWeapon::Holster();
 }
