@@ -188,6 +188,8 @@ extern cvar_t allchat;
 extern cvar_t sv_autobunnyhopping;
 extern cvar_t sv_enablebunnyhopping;
 
+extern cvar_t game_version_personnal;
+
 #endif
 
 extern cvar_t scoreboard_showmoney;
