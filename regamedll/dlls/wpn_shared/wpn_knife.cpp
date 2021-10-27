@@ -90,6 +90,14 @@ BOOL CKnife::Deploy()
 void CKnife::Holster(int skiplocal)
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
+	
+	if (m_bHasShield)
+	{
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+		m_bHasShield = false;
+	}
+
+	CBasePlayerWeapon::Holster();
 }
 
 NOXREF void CKnife::WeaponAnimation(int iAnimation)
