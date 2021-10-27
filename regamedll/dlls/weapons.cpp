@@ -1108,10 +1108,12 @@ void CBasePlayerItem::DestroyItem()
 {
 	if (m_pPlayer)
 	{
+#ifdef REGAMEDLL_FIXES
+		bool bShouldCallGetNextBestWeapon = (this == m_pPlayer->m_pActiveItem);
+#endif
 		// if attached to a player, remove.
 		if (m_pPlayer->RemovePlayerItem(this))
 		{
-
 #ifdef REGAMEDLL_FIXES
 			m_pPlayer->pev->weapons &= ~(1 << m_iId);
 
@@ -1119,15 +1121,18 @@ void CBasePlayerItem::DestroyItem()
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT)) == 0) {
 				m_pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
 			}
-			// Fix problem when we throw our last grenade right before using a tank and when we unuse it
+			// Helps to fix problem when we throw our last grenade right before using a tank (< 0.5 seconds) and when we unuse it,
 			// we no longer have an active item and we are unable to select another via mouse wheel.
-			else if(m_pTank && m_pPlayer->HasWeapons())
+			else if(bShouldCallGetNextBestWeapon)
 			{
 				g_pGameRules->GetNextBestWeapon(m_pPlayer, this);
 			}
 #endif
-
 		}
+#ifdef REGAMEDLL_FIXES
+		else if(!(pev->flags & FL_KILLME)) // Do not kill the item when unable to unhook from player's inventory (as if we manually refused this).
+			return;
+#endif
 	}
 
 	Kill();
