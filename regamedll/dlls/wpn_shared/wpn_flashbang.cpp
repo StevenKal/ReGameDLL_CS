@@ -83,6 +83,10 @@ void CFlashbang::Holster(int skiplocal)
 
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1.0f;
+
+#ifdef REGAMEDLL_FIXES
+	CBasePlayerWeapon::Holster();
+#endif
 }
 
 void CFlashbang::PrimaryAttack()
