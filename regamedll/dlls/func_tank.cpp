@@ -258,7 +258,12 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 	}
 
 	m_pController->m_iHideHUD |= HIDEHUD_WEAPONS;
+#ifdef REGAMEDLL_FIXES
+	m_vecControllerUsePos.x = (pev->origin - m_pController->pev->origin).Length();
+	m_vecControllerUsePos.y = MAX_PLAYER_USE_TANK_RADIUS;
+#else
 	m_vecControllerUsePos = m_pController->pev->origin;
+#endif
 
 	pev->nextthink = pev->ltime + 0.1f;
 
