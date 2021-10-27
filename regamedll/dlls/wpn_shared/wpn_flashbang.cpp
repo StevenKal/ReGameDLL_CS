@@ -83,6 +83,14 @@ void CFlashbang::Holster(int skiplocal)
 
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1.0f;
+	
+	if (m_bHasShield)
+	{
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+		m_bHasShield = false;
+	}
+
+	CBasePlayerWeapon::Holster();
 }
 
 void CFlashbang::PrimaryAttack()
