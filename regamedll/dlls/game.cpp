@@ -162,6 +162,9 @@ cvar_t allchat                           = { "sv_allchat", "0", 0, 0.0f, nullptr
 cvar_t sv_autobunnyhopping               = { "sv_autobunnyhopping", "0", 0, 0.0f, nullptr };
 cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.0f, nullptr };
 
+// Note: Just for my plugins & cie.
+cvar_t game_version_personnal            = { "game_version_personnal", "1", FCVAR_SERVER, 0.0f, nullptr };
+
 void GameDLL_Version_f()
 {
 	if (Q_stricmp(CMD_ARGV(1), "version") != 0)
