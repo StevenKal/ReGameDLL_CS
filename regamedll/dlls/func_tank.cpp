@@ -208,8 +208,12 @@ BOOL CFuncTank::OnControls(entvars_t *pevTest)
 	if (!(pev->spawnflags & SF_TANK_CANCONTROL))
 		return FALSE;
 
+#ifdef REGAMEDLL_FIXES
+	if((pev->origin - pevTest->origin).Length() < (m_vecControllerUsePos.x + m_vecControllerUsePos.y))
+#else
 	Vector offset = pevTest->origin - pev->origin;
 	if ((m_vecControllerUsePos - pevTest->origin).Length() < 30.0f)
+#endif
 	{
 		return TRUE;
 	}
@@ -876,6 +880,25 @@ void CFuncTankControls::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	if (m_pTank)
 	{
 		m_pTank->Use(pActivator, pCaller, useType, value);
+
+#ifdef REGAMEDLL_FIXES
+		m_pTank->m_vecControllerUsePos.x = (m_pTank->pev->origin - pActivator->pev->origin).Length();
+
+		// Extended distance setting, up to "MAX_PLAYER_USE_TANK_RADIUS" units or more depending on how close we were in "PlayerUse", or if we did not used it.
+		if(pActivator && pActivator->IsPlayer() && (((CBasePlayer *)pActivator)->m_afButtonPressed & IN_USE))
+		{
+			m_pTank->m_vecControllerUsePos.y = MAX_PLAYER_USE_RADIUS - (this->Center() - pActivator->pev->origin).Length();
+
+			if(m_pTank->m_vecControllerUsePos.y < 0) // Since radius function can get and higher range, so fix it to avoid "StartControl" followed by "StopControl" on a next think!
+			{
+				m_pTank->m_vecControllerUsePos.y = -m_pTank->m_vecControllerUsePos.y;
+			}
+		}
+		else
+		{
+			m_pTank->m_vecControllerUsePos.y = MAX_PLAYER_USE_TANK_RADIUS;
+		}
+#endif
 	}
 
 	// if this fails,  most likely means save/restore hasn't worked properly
