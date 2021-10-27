@@ -81,7 +81,6 @@ BOOL CKnife::Deploy()
 
 	if (m_pPlayer->HasShield())
 	{
-		m_bHasShield = true;
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 
 		return DefaultDeploy("models/shield/v_shield_knife.mdl", "models/shield/p_shield_knife.mdl", KNIFE_SHIELD_DRAW, "shieldknife", UseDecrement() != FALSE);
@@ -93,12 +92,6 @@ BOOL CKnife::Deploy()
 void CKnife::Holster(int skiplocal)
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
-	
-	if (m_bHasShield)
-	{
-		m_bHasShield = false;
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
-	}
 
 	CBasePlayerWeapon::Holster();
 }
