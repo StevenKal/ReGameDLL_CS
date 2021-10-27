@@ -753,7 +753,7 @@ void Host_Say(edict_t *pEntity, BOOL teamonly)
 {
 	int j;
 	char *p;
-	char text[128];
+	char text[140];
 	char szTemp[256];
 	const char *cpSay = "say";
 	const char *cpSayTeam = "say_team";
