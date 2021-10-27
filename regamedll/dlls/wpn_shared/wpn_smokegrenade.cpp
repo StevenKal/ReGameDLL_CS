@@ -96,8 +96,8 @@ void CSmokeGrenade::Holster(int skiplocal)
 	
 	if (m_bHasShield)
 	{
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		m_bHasShield = false;
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 	}
 
 	CBasePlayerWeapon::Holster();
