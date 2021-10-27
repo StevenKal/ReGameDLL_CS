@@ -63,7 +63,12 @@ BOOL CFlashbang::Deploy()
 	m_pPlayer->m_bShieldDrawn = false;
 
 	if (m_pPlayer->HasShield())
+	{
+		m_bHasShield = true;
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
+
 		return DefaultDeploy("models/shield/v_shield_flashbang.mdl", "models/shield/p_shield_flashbang.mdl", FLASHBANG_DRAW, "shieldgren", UseDecrement() != FALSE);
+	}
 	else
 		return DefaultDeploy("models/v_flashbang.mdl", "models/p_flashbang.mdl", FLASHBANG_DRAW, "grenade", UseDecrement() != FALSE);
 }
