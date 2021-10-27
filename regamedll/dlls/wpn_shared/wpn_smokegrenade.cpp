@@ -65,7 +65,12 @@ BOOL CSmokeGrenade::Deploy()
 	m_pPlayer->m_bShieldDrawn = false;
 
 	if (m_pPlayer->HasShield())
+	{
+		m_bHasShield = true;
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+
 		return DefaultDeploy("models/shield/v_shield_smokegrenade.mdl", "models/shield/p_shield_smokegrenade.mdl", SMOKEGRENADE_DRAW, "shieldgren", UseDecrement() != FALSE);
+	}
 	else
 		return DefaultDeploy("models/v_smokegrenade.mdl", "models/p_smokegrenade.mdl", SMOKEGRENADE_DRAW, "grenade", UseDecrement() != FALSE);
 }
@@ -91,7 +96,7 @@ void CSmokeGrenade::Holster(int skiplocal)
 	
 	if (m_bHasShield)
 	{
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
 		m_bHasShield = false;
 	}
 
