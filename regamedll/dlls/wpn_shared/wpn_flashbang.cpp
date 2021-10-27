@@ -64,7 +64,6 @@ BOOL CFlashbang::Deploy()
 
 	if (m_pPlayer->HasShield())
 	{
-		m_bHasShield = true;
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 
 		return DefaultDeploy("models/shield/v_shield_flashbang.mdl", "models/shield/p_shield_flashbang.mdl", FLASHBANG_DRAW, "shieldgren", UseDecrement() != FALSE);
@@ -88,12 +87,6 @@ void CFlashbang::Holster(int skiplocal)
 
 	m_flStartThrow = 0;
 	m_flReleaseThrow = -1.0f;
-	
-	if (m_bHasShield)
-	{
-		m_bHasShield = false;
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
-	}
 
 	CBasePlayerWeapon::Holster();
 }
