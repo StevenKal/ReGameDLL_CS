@@ -66,11 +66,7 @@ BOOL CHEGrenade::Deploy()
 	m_pPlayer->m_bShieldDrawn = false;
 
 	if (m_pPlayer->HasShield())
-	{
-		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
-
 		return DefaultDeploy("models/shield/v_shield_hegrenade.mdl", "models/shield/p_shield_hegrenade.mdl", HEGRENADE_DRAW, "shieldgren", UseDecrement() != FALSE);
-	}
 	else
 		return DefaultDeploy("models/v_hegrenade.mdl", "models/p_hegrenade.mdl", HEGRENADE_DRAW, "grenade", UseDecrement() != FALSE);
 }
