@@ -202,7 +202,6 @@ enum
 	SCENARIO_BLOCK_PRISON_ESCAPE_TIME      = BIT(8), // flag "i"
 	SCENARIO_BLOCK_BOMB_TIME               = BIT(9), // flag "j"
 	SCENARIO_BLOCK_HOSTAGE_RESCUE_TIME     = BIT(10), // flag "k"
-	
 };
 
 // Player relationship return codes
@@ -213,6 +212,14 @@ enum
 	GR_ENEMY,
 	GR_ALLY,
 	GR_NEUTRAL,
+};
+
+// Custom enum (used with custom function "CHalfLifeMultiplay::CanPlantBomb").
+enum
+{
+	GR_CANPLANTBOMB_NONE       = 0,
+	GR_CANPLANTBOMB_ANYWHERE   = BIT(0),
+	GR_CANPLANTBOMB_DELAY_OVER = BIT(1),
 };
 
 class CItem;
@@ -683,7 +690,8 @@ public:
 
 	// has a style of gameplay when aren't any teams
 	bool IsFreeForAll() const;
-	bool CanPlayerBuy(CBasePlayer *pPlayer) const;
+	EXPORT bool CanPlayerBuy(CBasePlayer *pPlayer);
+	EXPORT int CanPlantBomb(CBasePlayer *pPlayer, float *pflPlantC4Delay = nullptr);
 
 	VFUNC bool HasRoundTimeExpired();
 	VFUNC bool IsBombPlanted();
