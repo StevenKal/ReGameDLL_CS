@@ -6622,25 +6622,22 @@ void CBasePlayer::HandleSignals()
 {
 	if (CSGameRules()->IsMultiplayer())
 	{
-
 #ifdef REGAMEDLL_ADD
 		if (buytime.value != 0.0f)
 #endif
 		{
 #ifdef REGAMEDLL_ADD
-			if (buy_anywhere.value)
+			if (buy_anywhere.value >= 1)
 			{
-				if (pev->deadflag == DEAD_NO && (m_iTeam == TERRORIST || m_iTeam == CT)
-					&& !(m_signals.GetSignal() & SIGNAL_BUY)
-					// Restricted by map rules
-					&& CSGameRules()->CanPlayerBuy(this)
-					)
+				if (IsAlive() && (m_iTeam == TERRORIST || m_iTeam == CT)
+				&& !(m_signals.GetSignal() & SIGNAL_BUY)
+				// Restricted by map rules
+				&& CSGameRules()->CanPlayerBuy(this))
 				{
 					// 0 = default. 1 = both teams. 2 = Terrorists. 3 = Counter-Terrorists.
 					if (buy_anywhere.value == 1
-						|| (buy_anywhere.value == 2 && m_iTeam == TERRORIST)
-						|| (buy_anywhere.value == 3 && m_iTeam == CT)
-						)
+					|| (buy_anywhere.value == 2 && m_iTeam == TERRORIST)
+					|| (buy_anywhere.value >= 3 && m_iTeam == CT))
 					{
 						m_signals.Signal(SIGNAL_BUY);
 					}
@@ -6654,24 +6651,32 @@ void CBasePlayer::HandleSignals()
 		}
 
 #ifdef REGAMEDLL_ADD
-		if (m_bHasC4 && (plant_c4_anywhere.value || CSPlayer()->m_bPlantC4Anywhere))
+		if (IsAlive() && m_bHasC4)
 		{
-			if (IsAlive() && (m_iTeam == TERRORIST || m_iTeam == CT)
-				&& !(m_signals.GetSignal() & SIGNAL_BOMB))
+			int iCanPlantBomb = CSGameRules()->CanPlantBomb(this);
+
+			if (iCanPlantBomb & GR_CANPLANTBOMB_ANYWHERE)
 			{
 				m_signals.Signal(SIGNAL_BOMB);
 			}
-		}
-#endif 
 
+			if (iCanPlantBomb & GR_CANPLANTBOMB_DELAY_OVER)
+			{
+				m_signals.Signal(SIGNAL_BOMB_DELAY_OVER);
+			}
+		}
+
+		if (!(m_signals.GetSignal() & SIGNAL_BOMB) && !CSGameRules()->m_bMapHasBombZone)
+#else
 		if (!CSGameRules()->m_bMapHasBombZone)
+#endif 
 			OLD_CheckBombTarget(this);
 
 		if (!CSGameRules()->m_bMapHasRescueZone)
 			OLD_CheckRescueZone(this);
 	}
 
-	int state = m_signals.GetSignal();
+	int state   = m_signals.GetSignal();
 	int changed = m_signals.GetState() ^ state;
 
 	m_signals.Update();
@@ -6685,11 +6690,24 @@ void CBasePlayer::HandleSignals()
 	}
 	if (changed & SIGNAL_BOMB)
 	{
+#ifdef REGAMEDLL_ADD
+		if ((state & SIGNAL_BOMB) && (m_signals.GetState() & SIGNAL_BOMB_DELAY_OVER))
+#else
 		if (state & SIGNAL_BOMB)
+#endif
 			BombTargetFlash_Set(this);
 		else
 			BombTargetFlash_Clear(this);
 	}
+#ifdef REGAMEDLL_ADD
+	else if ((changed & SIGNAL_BOMB_DELAY_OVER) && (m_signals.GetState() & SIGNAL_BOMB))
+	{
+		if (state & SIGNAL_BOMB_DELAY_OVER)
+			BombTargetFlash_Set(this);
+		else
+			BombTargetFlash_Clear(this);
+	}
+#endif
 	if (changed & SIGNAL_RESCUE)
 	{
 		if (state & SIGNAL_RESCUE)
@@ -10053,7 +10071,11 @@ bool EXT_FUNC CBasePlayer::__API_HOOK(MakeBomber)()
 	}
 
 	m_bHasC4 = true;
+#ifdef REGAMEDLL_FIXES
+	SetBombIcon(((m_signals.GetState() & SIGNAL_BOMB) && (CSGameRules()->CanPlantBomb(this) & GR_CANPLANTBOMB_DELAY_OVER)));
+#else
 	SetBombIcon();
+#endif
 	pev->body = 1;
 
 	m_flDisplayHistory |= DHF_BOMB_RETRIEVED;
