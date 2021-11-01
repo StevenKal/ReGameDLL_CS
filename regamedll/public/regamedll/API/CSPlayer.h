@@ -49,7 +49,8 @@ public:
 		m_bGameForcingRespawn(false),
 		m_bAutoBunnyHopping(false),
 		m_bMegaBunnyJumping(false),
-		m_bPlantC4Anywhere(false)
+		m_iCanPlantC4Anywhere(-1),
+		m_flPlantC4Delay(-1.0)
 	{
 		m_szModel[0] = '\0';
 	}
@@ -130,7 +131,8 @@ public:
 	bool m_bGameForcingRespawn;
 	bool m_bAutoBunnyHopping;
 	bool m_bMegaBunnyJumping;
-	bool m_bPlantC4Anywhere;
+	int m_iCanPlantC4Anywhere;
+	float m_flPlantC4Delay;
 };
 
 // Inlines
