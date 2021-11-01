@@ -217,7 +217,7 @@ enum
 // Custom enum (used with custom function "CHalfLifeMultiplay::CanPlantBomb").
 enum
 {
-	GR_CANPLANTBOMB_NONE       = 0,
+	GR_CANPLANTBOMB_NO         = 0,
 	GR_CANPLANTBOMB_ANYWHERE   = BIT(0),
 	GR_CANPLANTBOMB_DELAY_OVER = BIT(1),
 };
