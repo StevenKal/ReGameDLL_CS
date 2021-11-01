@@ -4005,6 +4005,11 @@ void CBasePlayer::PlayerUse()
 	if (!((pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE))
 		return;
 
+#ifdef REGAMEDLL_FIXES
+	if (IsReloading())
+		return;
+#endif
+
 	// Hit Use on a train?
 	if (m_afButtonPressed & IN_USE)
 	{
