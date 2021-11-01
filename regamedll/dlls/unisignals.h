@@ -28,11 +28,15 @@
 
 #pragma once
 
+// Default CS's signals.
 #define SIGNAL_BUY       BIT(0)
 #define SIGNAL_BOMB      BIT(1)
 #define SIGNAL_RESCUE    BIT(2)
 #define SIGNAL_ESCAPE    BIT(3)
 #define SIGNAL_VIPSAFETY BIT(4)
+// ReGameDLL_CS's specific signals.
+// Note: Jump to +5 in order to predict possible new flags that could be added by a legit update of the game (by VALVe).
+#define SIGNAL_BOMB_DELAY_OVER BIT(10) // Note: Used to specify the player has his plant C4 delay over or not (to blink/unblink the C4 icon when value changed and if player is on site).
 
 class CUnifiedSignals
 {
