@@ -5161,10 +5161,10 @@ int CHalfLifeMultiplay::CanPlantBomb(CBasePlayer *pPlayer, float *pflPlantC4Dela
 	}
 
 	if(pPlayer && pPlayer->IsPlayer() && !(pPlayer->m_iTeam == TERRORIST || pPlayer->m_iTeam == CT))
-		return GR_CANPLANTBOMB_NONE;
+		return GR_CANPLANTBOMB_NO;
 
 #ifdef REGAMEDLL_ADD
-	int iResultFlags        = GR_CANPLANTBOMB_NONE;
+	int iResultFlags        = GR_CANPLANTBOMB_NO;
 	int iCanPlantC4Anywhere = -1;
 	float flPlantC4Delay    = -1.0;
 
