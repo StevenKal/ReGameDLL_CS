@@ -120,7 +120,14 @@ void CC4::PrimaryAttack()
 	}
 #endif
 
+#ifdef REGAMEDLL_ADD
+	float flPlantC4Delay = 0.0f;
+	int iCanPlantBomb    = CSGameRules()->CanPlantBomb(m_pPlayer, &flPlantC4Delay);
+
+	bool bPlaceBomb = (onGround && inBombZone && (iCanPlantBomb & GR_CANPLANTBOMB_DELAY_OVER));
+#else
 	bool bPlaceBomb = (onGround && inBombZone);
+#endif
 
 	if (!m_bStartedArming)
 	{
@@ -130,6 +137,21 @@ void CC4::PrimaryAttack()
 			m_flNextPrimaryAttack = GetNextAttackDelay(1.0);
 			return;
 		}
+
+#ifdef REGAMEDLL_ADD
+		if (!(iCanPlantBomb & GR_CANPLANTBOMB_DELAY_OVER) && flPlantC4Delay > 0.0f)
+		{
+			int iRemainingTime = Q_max((int)(flPlantC4Delay - (gpGlobals->time - CSGameRules()->m_fRoundStartTime)), 1);
+
+			if (!(iCanPlantBomb & GR_CANPLANTBOMB_ANYWHERE))
+				ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs("Wait %s %s before planting the C4 on the site!", UTIL_dtos1(iRemainingTime), (iRemainingTime == 1) ? "second" : "seconds"));
+			else
+				ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs("Wait %s %s before planting the C4 anywhere!", UTIL_dtos1(iRemainingTime), (iRemainingTime == 1) ? "second" : "seconds"));
+
+			m_flNextPrimaryAttack = GetNextAttackDelay(1.0);
+			return;
+		}
+#endif
 
 		if (!onGround)
 		{
@@ -168,8 +190,9 @@ void CC4::PrimaryAttack()
 				m_fArmedTime = 0;
 
 				Broadcast("BOMBPL");
+#ifndef REGAMEDLL_FIXES
 				m_pPlayer->m_bHasC4 = false;
-
+#endif
 				if (pev->speed != 0 && CSGameRules())
 				{
 					CSGameRules()->m_iC4Timer = int(pev->speed);
@@ -217,18 +240,27 @@ void CC4::PrimaryAttack()
 
 				// Play the plant sound.
 				EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/c4_plant.wav", VOL_NORM, ATTN_NORM);
-
+#ifndef REGAMEDLL_FIXES
 				// hide the backpack in Terrorist's models.
 				m_pPlayer->pev->body = 0;
-
+#endif
 				// release the player from being frozen
 				m_pPlayer->ResetMaxSpeed();
 
+#ifndef REGAMEDLL_FIXES
 				// No more c4!
 				m_pPlayer->SetBombIcon(FALSE);
+#endif
 
 				if (--m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 				{
+#ifdef REGAMEDLL_FIXES
+					m_pPlayer->m_bHasC4 = false;
+					// hide the backpack in Terrorist's models.
+					m_pPlayer->pev->body = 0;
+					// No more c4!
+					m_pPlayer->SetBombIcon(FALSE);
+#endif
 					RetireWeapon();
 					return;
 				}
@@ -248,7 +280,11 @@ void CC4::PrimaryAttack()
 		}
 		else
 		{
-			if (inBombZone)
+			if (inBombZone
+#ifdef REGAMEDLL_ADD
+			&& (iCanPlantBomb & GR_CANPLANTBOMB_DELAY_OVER)
+#endif
+			)
 				ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "#C4_Plant_Must_Be_On_Ground");
 			else
 				ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "#C4_Arming_Cancelled");
