@@ -6937,7 +6937,7 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory(int iAmmoIndex)
 {
-	if (iAmmoIndex == -1)
+	if (iAmmoIndex <= -1)
 		return -1;
 
 	return m_rgAmmo[iAmmoIndex];
