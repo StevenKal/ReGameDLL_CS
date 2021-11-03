@@ -2004,6 +2004,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 			if (!FStringNull(m_rgiszAmmo[n]))
 			{
 				// there's some ammo of this type.
+				UTIL_ClientPrintAll(HUD_PRINTCENTER, UTIL_VarArgs("[CWPB::GA] m_rgiszAmmo[%d] = %d (%s). MaxAmmoCarry = %d.", n, m_rgiszAmmo[n], STRING(m_rgiszAmmo[n]), MaxAmmoCarry(m_rgiszAmmo[n])));
 				pPlayer->GiveAmmo(m_rgAmmo[n], (char *)STRING(m_rgiszAmmo[n]), MaxAmmoCarry(m_rgiszAmmo[n]));
 
 				// now empty the ammo from the weaponbox since we just gave it to the player
