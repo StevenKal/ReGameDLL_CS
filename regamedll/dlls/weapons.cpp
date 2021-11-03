@@ -2015,7 +2015,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 				int iMaxAmmoCarry = MaxAmmoCarry(m_rgiszAmmo[n]);
 				UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("[CWPB::GA] m_rgiszAmmo[%d] = %d (%s). MaxAmmoCarry = %d.", n, m_rgiszAmmo[n], STRING(m_rgiszAmmo[n]), iMaxAmmoCarry));
 				pPlayer->GiveAmmo(m_rgAmmo[n], (char *)STRING(m_rgiszAmmo[n]), iMaxAmmoCarry);
-				g_bInGiveAmmo = false:
+				g_bInGiveAmmo = false;
 
 				// now empty the ammo from the weaponbox since we just gave it to the player
 				m_rgiszAmmo[n] = iStringNull;
