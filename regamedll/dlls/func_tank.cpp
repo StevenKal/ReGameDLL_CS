@@ -239,22 +239,22 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 
 	m_pController = pController;
 
-	CBasePlayerItem *pActiveItem = m_pController->m_pActiveItem;
+	CBasePlayerWeapon *pActiveWeapon = static_cast<CBasePlayerWeapon *>(m_pController->m_pActiveItem);
 
-	if (pActiveItem)
+	if (pActiveWeapon)
 	{
 #ifdef REGAMEDLL_FIXES
-		if (pActiveItem->m_flStartThrow == 0
-		&& pActiveItem->m_flReleaseThrow > 0
-		&& pActiveItem->m_pPlayer == m_pController
-		&& m_pController->m_rgAmmo[pActiveItem->m_iPrimaryAmmoType] <= 0)
+		if (pActiveWeapon->m_flStartThrow == 0
+		&& pActiveWeapon->m_flReleaseThrow > 0
+		&& pActiveWeapon->m_pPlayer == m_pController
+		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0)
 		{
-			pActiveItem->RetireWeapon();
+			pActiveWeapon->RetireWeapon();
 		}
 		else
 #endif
 		{
-			pActiveItem->Holster();
+			pActiveWeapon->Holster();
 		}
 
 #ifndef REGAMEDLL_FIXES
