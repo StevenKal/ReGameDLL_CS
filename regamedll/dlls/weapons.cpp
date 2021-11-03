@@ -21,15 +21,11 @@ short int g_sModelIndexC4Glow;
 int giAmmoIndex;
 
 MULTIDAMAGE gMultiDamage;
-bool g_bInGiveAmmo = false;
 
 // Pass in a name and this function will tell
 // you the maximum amount of that type of ammunition that a player can carry.
 int MaxAmmoCarry(const char *szName)
 {
-	if(g_bInGiveAmmo)
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("MaxAmmoCarrySTR: %d (%s).", (int)szName, szName ? szName : "NULL"));
-
 	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
 		ItemInfo *info = &CBasePlayerItem::m_ItemInfoArray[i];
@@ -50,9 +46,6 @@ int MaxAmmoCarry(const char *szName)
 
 int MaxAmmoCarry(WeaponIdType weaponId)
 {
-	if(g_bInGiveAmmo)
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("MaxAmmoCarryWeaponType: %d.", weaponId));
-
 	return CBasePlayerItem::m_ItemInfoArray[weaponId].iMaxAmmo1;
 }
 
@@ -2011,11 +2004,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 			if (!FStringNull(m_rgiszAmmo[n]))
 			{
 				// there's some ammo of this type.
-				g_bInGiveAmmo = true;
-				int iMaxAmmoCarry = MaxAmmoCarry(m_rgiszAmmo[n]);
-				UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("[CWPB::GA] m_rgiszAmmo[%d] = %d (%s). MaxAmmoCarry = %d.", n, m_rgiszAmmo[n], STRING(m_rgiszAmmo[n]), iMaxAmmoCarry));
-				pPlayer->GiveAmmo(m_rgAmmo[n], (char *)STRING(m_rgiszAmmo[n]), iMaxAmmoCarry);
-				g_bInGiveAmmo = false;
+				pPlayer->GiveAmmo(m_rgAmmo[n], (char *)STRING(m_rgiszAmmo[n]), MaxAmmoCarry(m_rgiszAmmo[n]));
 
 				// now empty the ammo from the weaponbox since we just gave it to the player
 				m_rgiszAmmo[n] = iStringNull;
