@@ -1121,6 +1121,10 @@ void CBasePlayerItem::DestroyItem()
 			}
 #endif
 		}
+#ifdef REGAMEDLL_FIXES
+		else if(!(pev->flags & FL_KILLME)) // Do not kill the item when unable to unhook from player's inventory (as if we manually refused this).
+			return;
+#endif
 	}
 
 	Kill();
