@@ -312,7 +312,16 @@ void CC4::WeaponIdle()
 	{
 		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		{
-			RetireWeapon();
+#ifdef REGAMEDLL_API
+			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
+			{
+				m_pPlayer->CSPlayer()->RemovePlayerItem(STRING(pev->classname));
+			}
+			else
+#endif
+			{
+				RetireWeapon();
+			}
 			return;
 		}
 
