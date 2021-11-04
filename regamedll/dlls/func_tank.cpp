@@ -248,7 +248,7 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 		// This happens when we throw our last granada and we quickly use the tank,
 		// the "GetNextBestWeapon" code inside "RetireWeapon" will not be called, since "m_flReleaseThrow" will be reset to -1.
 		bool bShouldCallGetNextBestWeapon =
-			((pActiveWeapon->m_iId & ((1<<WEAPON_HEGRENADE)|(1<<WEAPON_FLASHBANG)|(1<<WEAPON_SMOKEGRENADE))
+			((pActiveWeapon->m_iId & ((1<<WEAPON_HEGRENADE)|(1<<WEAPON_FLASHBANG)|(1<<WEAPON_SMOKEGRENADE)))
 			&& pActiveWeapon->m_flStartThrow == 0
 			&& pActiveWeapon->m_flReleaseThrow > 0
 			&& pActiveWeapon->m_pPlayer == m_pController
