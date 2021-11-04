@@ -236,11 +236,13 @@ void CHEGrenade::WeaponIdle()
 		}
 		else
 		{
+#ifdef REGAMEDLL_FIXES
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 			{
 				Holster();
 			}
 			else
+#endif
 			{
 				RetireWeapon();
 			}
