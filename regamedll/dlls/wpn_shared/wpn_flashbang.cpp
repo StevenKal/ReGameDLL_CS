@@ -238,6 +238,26 @@ void CFlashbang::WeaponIdle()
 		{
 			g_pGameRules->GetNextBestWeapon(m_pPlayer, this);
 		}
+
+		if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
+		{
+			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+			{
+#ifdef REGAMEDLL_API
+				m_pPlayer->CSPlayer()->RemovePlayerItem(STRING(pev->classname));
+#else
+				RetireWeapon();
+#endif
+			}
+			else
+			{
+				SendWeaponAnim(FLASHBANG_DRAW, UseDecrement() != FALSE);
+			}
+		}
+		else
+		{
+			RetireWeapon();
+		}
 	}
 	else if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 	{
