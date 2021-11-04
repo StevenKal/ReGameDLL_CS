@@ -236,7 +236,7 @@ void CFlashbang::WeaponIdle()
 		else
 #endif
 		{
-			RetireWeapon();
+			g_pGameRules->GetNextBestWeapon(m_pPlayer, this);
 		}
 	}
 	else if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
