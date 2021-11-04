@@ -244,18 +244,23 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 	if (pActiveWeapon)
 	{
 #ifdef REGAMEDLL_FIXES
-		if (pActiveWeapon->m_flStartThrow == 0
-		&& pActiveWeapon->m_flReleaseThrow > 0
-		&& pActiveWeapon->m_pPlayer == m_pController
-		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0)
-		{
-			pActiveWeapon->RetireWeapon();
-		}
-		else
+		// Fix problem when we holster a granada before its "RetireWeapon" code call, to avoid having no new weapon/HUD selection when we stop controlling the tank.
+		// This happens when we throw our last granada and we quickly use the tank,
+		// the "GetNextBestWeapon" code inside "RetireWeapon" will not be called, since "m_flReleaseThrow" will be reset to -1.
+		bool bShouldCallGetNextBestWeapon =
+			((pActiveWeapon->m_iId & ((1<<WEAPON_HEGRENADE)|(1<<WEAPON_FLASHBANG)|(1<<WEAPON_SMOKEGRENADE))
+			&& pActiveWeapon->m_flStartThrow == 0
+			&& pActiveWeapon->m_flReleaseThrow > 0
+			&& pActiveWeapon->m_pPlayer == m_pController
+			&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0);
 #endif
+		pActiveWeapon->Holster();
+#ifdef REGAMEDLL_FIXES
+		if (bShouldCallGetNextBestWeapon && !m_pController->m_pActiveItem)
 		{
-			pActiveWeapon->Holster();
+			g_pGameRules->GetNextBestWeapon(m_pController, pActiveWeapon);
 		}
+#endif
 
 #ifndef REGAMEDLL_FIXES
 		m_pController->pev->weaponmodel = 0;
@@ -910,7 +915,7 @@ void CFuncTankControls::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 		{
 			m_pTank->m_vecControllerUsePos.y = MAX_PLAYER_USE_RADIUS - (this->Center() - pActivator->pev->origin).Length();
 
-			if(m_pTank->m_vecControllerUsePos.y < 0) // Since radius function can get and higher range, so fix it to avoid "StartControl" followed by "StopControl" on a next think!
+			if(m_pTank->m_vecControllerUsePos.y < 0) // Since radius function can get a higher range, so fix it to avoid "StartControl" followed by "StopControl" on a next think!
 			{
 				m_pTank->m_vecControllerUsePos.y = -m_pTank->m_vecControllerUsePos.y;
 			}
