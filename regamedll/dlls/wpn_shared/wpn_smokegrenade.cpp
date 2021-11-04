@@ -231,13 +231,22 @@ void CSmokeGrenade::WeaponIdle()
 		// we've finished the throw, restart.
 		m_flStartThrow = 0;
 
-		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
 		{
 			SendWeaponAnim(SMOKEGRENADE_DRAW, UseDecrement() != FALSE);
 		}
 		else
 		{
-			RetireWeapon();
+#ifdef REGAMEDLL_API
+			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
+			{
+				m_pPlayer->CSPlayer()->RemovePlayerItem(STRING(pev->classname));
+			}
+			else
+#endif
+			{
+				RetireWeapon();
+			}
 			return;
 		}
 
