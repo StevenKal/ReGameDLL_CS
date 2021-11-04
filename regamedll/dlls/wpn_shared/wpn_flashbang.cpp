@@ -228,6 +228,7 @@ void CFlashbang::WeaponIdle()
 		// we've finished the throw, restart.
 		m_flStartThrow = 0;
 
+#ifdef REGAMEDLL_FIXES
 		if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 		{
 			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
@@ -240,6 +241,7 @@ void CFlashbang::WeaponIdle()
 			}
 		}
 		else
+#endif
 		{
 			RetireWeapon();
 		}
