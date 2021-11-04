@@ -236,13 +236,11 @@ void CHEGrenade::WeaponIdle()
 		}
 		else
 		{
-#ifdef REGAMEDLL_API
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 			{
-				m_pPlayer->CSPlayer()->RemovePlayerItem(STRING(pev->classname));
+				Holster();
 			}
 			else
-#endif
 			{
 				RetireWeapon();
 			}
