@@ -233,11 +233,13 @@ void CC4::PrimaryAttack()
 
 				if (--m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 				{
+#ifdef REGAMEDLL_FIXES
 					if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 					{
 						Holster();
 					}
 					else
+#endif
 					{
 						RetireWeapon();
 					}
@@ -310,11 +312,13 @@ void CC4::WeaponIdle()
 	{
 		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		{
+#ifdef REGAMEDLL_FIXES
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 			{
 				Holster();
 			}
 			else
+#endif
 			{
 				RetireWeapon();
 			}
