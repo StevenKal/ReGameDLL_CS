@@ -230,7 +230,7 @@ EXT_FUNC bool CCSPlayer::RemovePlayerItemEx(const char* pszItemName, bool bRemov
 				}
 
 				// Critical if we share BP ammo with others, a mode like <0|1|2> where "1" check if no other weapon use such ammo type would have been better.
-				if (bRemoveAmmo) {
+				if (bRemoveAmmo || (pItem->iFlags() & ITEM_FLAG_EXHAUSTIBLE)) {
 					pPlayer->m_rgAmmo[ pItem->PrimaryAmmoIndex() ] = 0;
 				}
 			}
