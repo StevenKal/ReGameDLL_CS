@@ -1111,7 +1111,6 @@ void CBasePlayerItem::DestroyItem()
 		// if attached to a player, remove.
 		if (m_pPlayer->RemovePlayerItem(this))
 		{
-
 #ifdef REGAMEDLL_FIXES
 			m_pPlayer->pev->weapons &= ~(1 << m_iId);
 
