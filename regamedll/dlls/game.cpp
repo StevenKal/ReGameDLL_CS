@@ -161,6 +161,7 @@ cvar_t free_armor                        = { "mp_free_armor", "0", 0, 0.0f, null
 cvar_t allchat                           = { "sv_allchat", "0", 0, 0.0f, nullptr };
 cvar_t sv_autobunnyhopping               = { "sv_autobunnyhopping", "0", 0, 0.0f, nullptr };
 cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.0f, nullptr };
+cvar_t plant_c4_anywhere                 = { "mp_plant_c4_anywhere", "0", 0, 0.0f, nullptr };
 
 // Note: Just for my plugins & cie.
 cvar_t game_version_personnal            = { "game_version_personnal", "1.1.0-public-AMXModDev", FCVAR_SERVER, 0.0f, nullptr };
@@ -394,6 +395,7 @@ void EXT_FUNC GameDLLInit()
 	CVAR_REGISTER(&allchat);
 	CVAR_REGISTER(&sv_autobunnyhopping);
 	CVAR_REGISTER(&sv_enablebunnyhopping);
+	CVAR_REGISTER(&plant_c4_anywhere);
 
 	CVAR_REGISTER(&game_version_personnal);
 
