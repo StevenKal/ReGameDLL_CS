@@ -247,20 +247,19 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 		// Fix problem when we holster a granada before its "RetireWeapon" code call, to avoid having no new weapon/HUD selection when we stop controlling the tank.
 		// This happens when we throw our last granada and we quickly use the tank,
 		// the "GetNextBestWeapon" code inside "RetireWeapon" will not be called, since "m_flReleaseThrow" will be reset to -1.
-		bool bShouldCallGetNextBestWeapon =
-			((pActiveWeapon->m_iId == WEAPON_HEGRENADE || pActiveWeapon->m_iId == WEAPON_FLASHBANG || pActiveWeapon->m_iId == WEAPON_SMOKEGRENADE)
-			&& pActiveWeapon->m_flStartThrow == 0
-			&& pActiveWeapon->m_flReleaseThrow > 0
-			&& pActiveWeapon->m_pPlayer == m_pController
-			&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0);
-#endif
-		pActiveWeapon->Holster();
-#ifdef REGAMEDLL_FIXES
-		if (bShouldCallGetNextBestWeapon && !m_pController->m_pActiveItem)
+		if ((pActiveWeapon->m_iId == WEAPON_HEGRENADE || pActiveWeapon->m_iId == WEAPON_FLASHBANG || pActiveWeapon->m_iId == WEAPON_SMOKEGRENADE)
+		&& pActiveWeapon->m_flStartThrow == 0
+		&& pActiveWeapon->m_flReleaseThrow > 0
+		&& pActiveWeapon->m_pPlayer == m_pController
+		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0)
 		{
-			g_pGameRules->GetNextBestWeapon(m_pController, pActiveWeapon);
+			pActiveWeapon->RetireWeapon();
 		}
+		else
 #endif
+		{
+			pActiveWeapon->Holster();
+		}
 
 #ifndef REGAMEDLL_FIXES
 		m_pController->pev->weaponmodel = 0;
