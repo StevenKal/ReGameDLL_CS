@@ -240,6 +240,8 @@ void CHEGrenade::WeaponIdle()
 			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
 			{
 				m_pPlayer->CSPlayer()->RemovePlayerItem(STRING(pev->classname));
+			}
+			else
 #endif
 			{
 				RetireWeapon();
