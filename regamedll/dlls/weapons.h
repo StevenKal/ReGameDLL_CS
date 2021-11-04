@@ -861,7 +861,7 @@ public:
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	virtual int GetItemInfo(ItemInfo *p);
 	virtual BOOL Deploy();
-	virtual void Holster(int skiplocal);
+	virtual void Holster(int skiplocal = 0);
 	virtual float GetMaxSpeed();
 	virtual int iItemSlot() { return C4_SLOT; }
 	virtual void PrimaryAttack();
@@ -953,7 +953,7 @@ public:
 	virtual BOOL CanDeploy();
 	virtual BOOL CanDrop() { return FALSE; }
 	virtual BOOL Deploy();
-	virtual void Holster(int skiplocal);
+	virtual void Holster(int skiplocal = 0);
 	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
 	virtual int iItemSlot() { return GRENADE_SLOT; }
 	virtual void PrimaryAttack();
@@ -1122,7 +1122,7 @@ public:
 	virtual BOOL CanDeploy();
 	virtual BOOL CanDrop() { return FALSE; }
 	virtual BOOL Deploy();
-	virtual void Holster(int skiplocal);
+	virtual void Holster(int skiplocal = 0);
 	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
 	virtual int iItemSlot() { return GRENADE_SLOT; }
 	virtual void PrimaryAttack();
@@ -1192,7 +1192,7 @@ public:
 	virtual int GetItemInfo(ItemInfo *p);
 	virtual BOOL CanDrop() { return FALSE; }
 	virtual BOOL Deploy();
-	virtual void Holster(int skiplocal);
+	virtual void Holster(int skiplocal = 0);
 	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
 	virtual int iItemSlot() { return KNIFE_SLOT; }
 	virtual void PrimaryAttack();
@@ -1634,7 +1634,7 @@ public:
 	virtual BOOL CanDeploy();
 	virtual BOOL CanDrop() { return FALSE; }
 	virtual BOOL Deploy();
-	virtual void Holster(int skiplocal);
+	virtual void Holster(int skiplocal = 0);
 	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
 	virtual int iItemSlot() { return GRENADE_SLOT; }
 	virtual void PrimaryAttack();
