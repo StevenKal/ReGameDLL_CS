@@ -48,7 +48,8 @@ public:
 		m_bCanShootOverride(false),
 		m_bGameForcingRespawn(false),
 		m_bAutoBunnyHopping(false),
-		m_bMegaBunnyJumping(false)
+		m_bMegaBunnyJumping(false),
+		m_bPlantC4Anywhere(false)
 	{
 		m_szModel[0] = '\0';
 	}
@@ -60,8 +61,8 @@ public:
 	virtual CBaseEntity *GiveNamedItemEx(const char *pszName);
 	virtual void GiveDefaultItems();
 	virtual void GiveShield(bool bDeploy = true);
-	virtual void DropShield(bool bDeploy = true);
-	virtual void DropPlayerItem(const char *pszItemName);
+	virtual CBaseEntity *DropShield(bool bDeploy = true);
+	virtual CBaseEntity *DropPlayerItem(const char *pszItemName);
 	virtual bool RemoveShield();
 	virtual void RemoveAllItems(bool bRemoveSuit);
 	virtual bool RemovePlayerItem(const char* pszItemName);
@@ -129,6 +130,7 @@ public:
 	bool m_bGameForcingRespawn;
 	bool m_bAutoBunnyHopping;
 	bool m_bMegaBunnyJumping;
+	bool m_bPlantC4Anywhere;
 };
 
 // Inlines
