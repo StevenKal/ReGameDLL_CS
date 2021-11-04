@@ -251,7 +251,8 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 		&& pActiveWeapon->m_flStartThrow == 0
 		&& pActiveWeapon->m_flReleaseThrow > 0
 		&& pActiveWeapon->m_pPlayer == m_pController
-		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0)
+		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0
+		&& (m_pController->pev->weapons & ~(1 << WEAPON_SUIT | 1 << pActiveWeapon->m_iId )))
 		{
 			pActiveWeapon->RetireWeapon();
 		}
