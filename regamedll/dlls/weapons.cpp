@@ -1868,7 +1868,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 			if (FClassnameIs(pItem->pev, "weapon_c4"))
 			{
 #ifdef REGAMEDLL_FIXES
-				if (pPlayer->m_iTeam != TERRORIST)
+				if (pPlayer->m_iTeam != TERRORIST || pPlayer->m_bHasC4)
 					return;
 #else
 				if (pPlayer->m_iTeam != TERRORIST || pPlayer->pev->deadflag != DEAD_NO)
