@@ -249,7 +249,7 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 		// the "GetNextBestWeapon" code inside "RetireWeapon" will not be called, since "m_flReleaseThrow" will be reset to -1.
 		if (IsGrenadeWeapon(pActiveWeapon->m_iId)
 		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0
-		&& (m_pController->pev->weapons & ~(1 << WEAPON_SUIT | 1 << pActiveWeapon->m_iId )))
+		&& (m_pController->pev->weapons & ~(1 << WEAPON_SUIT | 1 << pActiveWeapon->m_iId)))
 		{
 			pActiveWeapon->RetireWeapon();
 		}
