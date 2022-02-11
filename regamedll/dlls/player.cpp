@@ -2108,6 +2108,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 
 			pObserver->m_bNightVisionOn = false;
 		}
+
+#ifdef REGAMEDLL_FIXES
+		if (pObserver->m_hObserverTarget == this)
+			pObserver->m_flNextFollowTime = 0.0f;
+#endif
 	}
 
 	if (m_pTank)
@@ -7206,7 +7211,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(UpdateClientData)()
 				m_iClientHideHUD = 0;
 
 			int hudChanged = m_iClientHideHUD ^ m_iHideHUD;
-			if (hudChanged & (HIDEHUD_FLASHLIGHT | HIDEHUD_HEALTH | HIDEHUD_TIMER | HIDEHUD_MONEY))
+			if (hudChanged & (HIDEHUD_FLASHLIGHT | HIDEHUD_HEALTH | HIDEHUD_TIMER | HIDEHUD_MONEY | HIDEHUD_CROSSHAIR))
 			{
 				MESSAGE_BEGIN(MSG_ONE, gmsgCrosshair, nullptr, pev);
 					WRITE_BYTE(0);
