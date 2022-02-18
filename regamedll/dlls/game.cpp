@@ -164,7 +164,7 @@ cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.
 cvar_t plant_c4_anywhere                 = { "mp_plant_c4_anywhere", "0", 0, 0.0f, nullptr };
 
 // Note: Just for my plugins & cie.
-cvar_t game_version_personnal            = { "game_version_personnal", "1.1.0-public-AMXModDev", FCVAR_SERVER, 0.0f, nullptr };
+cvar_t game_version_personnal            = { "game_version_personnal", "1.2.0-public-AMXModDev", FCVAR_SERVER, 0.0f, nullptr };
 
 void GameDLL_Version_f()
 {
