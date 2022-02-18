@@ -354,6 +354,8 @@ public:
 };
 
 int UTIL_CountPlayersInBrushVolume(bool bOnlyAlive, CBaseEntity *pBrushEntity, int &playersInCount, int &playersOutCount, CPlayerInVolumeAdapter *pAdapter = nullptr);
+int UTIL_GetClientsSolidity(int iSolidityTypeArray[MAX_CLIENTS + 1]);
+int UTIL_SetClientsSolidity(int iClientsBitsToSet, bool bSetFromArray, int iSolidityType, int iSolidityTypeArray[MAX_CLIENTS + 1] = nullptr);
 
 inline real_t UTIL_FixupAngle(real_t v)
 {
