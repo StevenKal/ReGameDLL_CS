@@ -1853,3 +1853,43 @@ int UTIL_CountPlayersInBrushVolume(bool bOnlyAlive, CBaseEntity *pBrushEntity, i
 
 	return playersInCount + playersOutCount;
 }
+
+int UTIL_GetClientsSolidity(int iSolidityTypeArray[MAX_CLIENTS + 1]) {
+	Q_memset(iSolidityTypeArray, SOLID_NOT, sizeof(iSolidityTypeArray));
+
+	int iClientsBitsFound = 0;
+	for(int iClientID = 1; iClientID <= gpGlobals->maxClients; iClientID++)
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(iClientID);
+
+		if (!pPlayer || pPlayer->has_disconnected || !pPlayer->IsAlive())
+			continue;
+
+		iSolidityTypeArray[iClientID] = pPlayer->pev->solid;
+		iClientsBitsFound |= (1<<(iClientID - 1));
+	}
+
+	return iClientsBitsFound;	
+}
+
+int UTIL_SetClientsSolidity(int iClientsBitsToSet, bool bSetFromArray, int iSolidityType, int iSolidityTypeArray[MAX_CLIENTS + 1]) {
+	if(iClientsBitsToSet == 0)
+			return 0;
+	
+	int iClientsBitsSet = 0;
+	for(int iClientID = 1; iClientID <= gpGlobals->maxClients; iClientID++)
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(iClientID);
+
+		if (!pPlayer || pPlayer->has_disconnected || !pPlayer->IsAlive())
+			continue;
+
+		if(!(iClientsBitsToSet & (1<<(iClientID - 1))))
+				continue;
+
+		pPlayer->pev->solid = (bSetFromArray == false) ? iSolidityType : iSolidityTypeArray[iClientID];
+		iClientsBitsSet |= (1<<(iClientID - 1));
+	}
+
+	return iClientsBitsSet;
+}
