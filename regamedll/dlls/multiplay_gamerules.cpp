@@ -5141,20 +5141,70 @@ void CHalfLifeMultiplay::ChangePlayerTeam(CBasePlayer *pPlayer, const char *pTea
 	}
 }
 
-bool CHalfLifeMultiplay::CanPlayerBuy(CBasePlayer *pPlayer) const
+bool CHalfLifeMultiplay::CanPlayerBuy(CBasePlayer *pPlayer)
 {
-	if (pPlayer->m_iTeam == CT && m_bCTCantBuy)
-	{
+	if((m_bCTCantBuy && m_bTCantBuy)
+	|| (pPlayer->m_iTeam == CT && m_bCTCantBuy)
+	|| (pPlayer->m_iTeam == TERRORIST && m_bTCantBuy))
 		return false;
-	}
-	else if (pPlayer->m_iTeam == TERRORIST && m_bTCantBuy)
-	{
-		return false;
-	}
-	else if (m_bCTCantBuy && m_bTCantBuy)
-	{
-		return false;
-	}
 
 	return true;
 }
+
+// Check if the C4 can be planted (only by rules).
+// Note: Implement team check here when a player is passed in order to easily allow tricking, if needed (but facultative).
+int CHalfLifeMultiplay::CanPlantBomb(CBasePlayer *pPlayer, float *pflPlantC4Delay)
+{
+	if(pflPlantC4Delay)
+	{
+		*pflPlantC4Delay = 0.0f;
+	}
+
+	if(pPlayer && pPlayer->IsPlayer() && !(pPlayer->m_iTeam == TERRORIST || pPlayer->m_iTeam == CT))
+		return GR_CANPLANTBOMB_NO;
+
+#ifdef REGAMEDLL_ADD
+	int iResultFlags        = GR_CANPLANTBOMB_NO;
+	int iCanPlantC4Anywhere = -1;
+	float flPlantC4Delay    = -1.0;
+
+	#ifdef REGAMEDLL_API
+	if(pPlayer && pPlayer->IsPlayer())
+	{
+		iCanPlantC4Anywhere = pPlayer->CSPlayer()->m_iCanPlantC4Anywhere;
+		flPlantC4Delay      = pPlayer->CSPlayer()->m_flPlantC4Delay;
+	}
+	#endif
+
+	if(iCanPlantC4Anywhere <= -1)
+	{
+		iCanPlantC4Anywhere = plant_c4_anywhere.value;
+	}
+
+	if(flPlantC4Delay <= -1.0)
+	{
+		flPlantC4Delay = plant_c4_delay.value;
+	}
+	flPlantC4Delay = Q_max(flPlantC4Delay, 0.0f);
+
+	if(pflPlantC4Delay)
+	{
+		*pflPlantC4Delay = flPlantC4Delay;
+	}
+
+	if(iCanPlantC4Anywhere >= 1)
+	{
+		iResultFlags |= GR_CANPLANTBOMB_ANYWHERE;
+	}
+
+	if(flPlantC4Delay <= (gpGlobals->time - CSGameRules()->m_fRoundStartTime))
+	{
+		iResultFlags |= GR_CANPLANTBOMB_DELAY_OVER;
+	}
+
+	return iResultFlags;
+#else
+	return GR_CANPLANTBOMB_DELAY_OVER;
+#endif
+}
+

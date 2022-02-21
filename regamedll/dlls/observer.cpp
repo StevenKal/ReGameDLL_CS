@@ -355,7 +355,11 @@ void CBasePlayer::Observer_CheckProperties()
 
 		if (target->m_bHasC4)
 		{
+#ifdef REGAMEDLL_ADD
+			if ((target->m_signals.GetState() & SIGNAL_BOMB) && (CSGameRules()->CanPlantBomb(target) & GR_CANPLANTBOMB_DELAY_OVER))
+#else
 			if (target->m_signals.GetState() & SIGNAL_BOMB)
+#endif
 				targetBombState = STATUSICON_FLASH;
 			else
 				targetBombState = STATUSICON_SHOW;

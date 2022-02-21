@@ -258,7 +258,7 @@ EXT_FUNC CBaseEntity *CCSPlayer::GiveNamedItemEx(const char *pszName)
 
 	if (FStrEq(pszName, "weapon_c4")) {
 		pPlayer->m_bHasC4 = true;
-		pPlayer->SetBombIcon();
+		pPlayer->SetBombIcon(((pPlayer->m_signals.GetState() & SIGNAL_BOMB) && (CSGameRules()->CanPlantBomb(pPlayer) & GR_CANPLANTBOMB_DELAY_OVER)));
 
 		if (pPlayer->m_iTeam == TERRORIST) {
 			pPlayer->pev->body = 1;
@@ -531,8 +531,8 @@ void CCSPlayer::Reset()
 	m_szModel[0] = '\0';
 
 	m_bForceShowMenu = false;
-	m_flRespawnPending =
-		m_flSpawnProtectionEndTime = 0.0f;
+	m_flRespawnPending = 0.0f;
+	m_flSpawnProtectionEndTime = 0.0f;
 
 	m_vecOldvAngle = g_vecZero;
 	m_iWeaponInfiniteAmmo = 0;
@@ -541,6 +541,8 @@ void CCSPlayer::Reset()
 	m_bGameForcingRespawn = false;
 	m_bAutoBunnyHopping = false;
 	m_bMegaBunnyJumping = false;
+	m_iCanPlantC4Anywhere = -1;
+	m_flPlantC4Delay = -1.0;
 }
 
 void CCSPlayer::OnSpawn()
