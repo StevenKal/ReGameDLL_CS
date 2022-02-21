@@ -48,6 +48,7 @@ extern cvar_t *g_psv_friction;
 extern cvar_t *g_psv_stopspeed;
 extern cvar_t *g_psv_stepsize;
 extern cvar_t *g_psv_clienttrace;
+extern cvar_t *g_psv_zmax;
 extern cvar_t *g_footsteps;
 
 extern cvar_t displaysoundlist;
