@@ -43,6 +43,11 @@ EXT_FUNC bool CCSPlayer::JoinTeam(TeamName team)
 		pPlayer->pev->deadflag = DEAD_DEAD;
 		pPlayer->pev->health = 0;
 
+		// Drop the C4 when we move toward spectator!
+		if(pPlayer->m_bHasC4)
+		{
+			pPlayer->DropPlayerItem("weapon_c4");
+		}
 		pPlayer->RemoveAllItems(TRUE);
 		pPlayer->m_bHasC4 = false;
 
@@ -200,7 +205,6 @@ EXT_FUNC bool CCSPlayer::RemovePlayerItemEx(const char* pszItemName, bool bRemov
 
 		return true;
 	}
-
 	else if (FStrEq(pszItemName, "weapon_shield"))
 	{
 		return RemoveShield();
@@ -209,32 +213,34 @@ EXT_FUNC bool CCSPlayer::RemovePlayerItemEx(const char* pszItemName, bool bRemov
 	auto pItem = GetItemByName(pszItemName);
 	if (pItem)
 	{
-		if (FClassnameIs(pItem->pev, "weapon_c4")) {
-			pPlayer->m_bHasC4 = false;
-			pPlayer->pev->body = 0;
-			pPlayer->SetBombIcon(FALSE);
-			pPlayer->SetProgressBarTime(0);
-		}
-
-		if (pItem->IsWeapon())
-		{
-			if (pItem == pPlayer->m_pActiveItem) {
-				((CBasePlayerWeapon *)pItem)->RetireWeapon();
-			}
-
-			if (bRemoveAmmo) {
-				pPlayer->m_rgAmmo[ pItem->PrimaryAmmoIndex() ] = 0;
-			}
-		}
+		CBasePlayerItem *pActiveItem = pPlayer->m_pActiveItem;
 
 		if (pPlayer->RemovePlayerItem(pItem)) {
 			pPlayer->pev->weapons &= ~(1 << pItem->m_iId);
-			// No more weapon
+			// No more weapon.
 			if ((pPlayer->pev->weapons & ~(1 << WEAPON_SUIT)) == 0) {
 				pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
 			}
 
 			pItem->Kill();
+
+			if (pItem->IsWeapon()) {
+				if (pItem == pActiveItem) {
+					g_pGameRules->GetNextBestWeapon(pPlayer, pActiveItem);
+				}
+
+				// Critical if we share BP ammo with others, a mode like <0|1|2> where "1" check if no other weapon use such ammo type would have been better.
+				if (bRemoveAmmo || (pItem->iFlags() & ITEM_FLAG_EXHAUSTIBLE)) {
+					pPlayer->m_rgAmmo[ pItem->PrimaryAmmoIndex() ] = 0;
+				}
+			}
+
+			if (FClassnameIs(pItem->pev, "weapon_c4")) {
+				pPlayer->m_bHasC4 = false;
+				pPlayer->pev->body = 0;
+				pPlayer->SetBombIcon(FALSE);
+				pPlayer->SetProgressBarTime(0);
+			}
 
 			if (!pPlayer->m_rgpPlayerItems[PRIMARY_WEAPON_SLOT]) {
 				pPlayer->m_bHasPrimary = false;
@@ -303,14 +309,14 @@ EXT_FUNC void CCSPlayer::GiveShield(bool bDeploy)
 	BasePlayer()->GiveShield(bDeploy);
 }
 
-EXT_FUNC void CCSPlayer::DropShield(bool bDeploy)
+EXT_FUNC CBaseEntity *CCSPlayer::DropShield(bool bDeploy)
 {
-	BasePlayer()->DropShield(bDeploy);
+	return BasePlayer()->DropShield(bDeploy);
 }
 
-EXT_FUNC void CCSPlayer::DropPlayerItem(const char *pszItemName)
+EXT_FUNC CBaseEntity *CCSPlayer::DropPlayerItem(const char *pszItemName)
 {
-	BasePlayer()->DropPlayerItem(pszItemName);
+	return BasePlayer()->DropPlayerItem(pszItemName);
 }
 
 EXT_FUNC bool CCSPlayer::RemoveShield()
@@ -531,8 +537,8 @@ void CCSPlayer::Reset()
 	m_szModel[0] = '\0';
 
 	m_bForceShowMenu = false;
-	m_flRespawnPending =
-		m_flSpawnProtectionEndTime = 0.0f;
+	m_flRespawnPending = 0.0f;
+	m_flSpawnProtectionEndTime = 0.0f;
 
 	m_vecOldvAngle = g_vecZero;
 	m_iWeaponInfiniteAmmo = 0;
@@ -541,6 +547,7 @@ void CCSPlayer::Reset()
 	m_bGameForcingRespawn = false;
 	m_bAutoBunnyHopping = false;
 	m_bMegaBunnyJumping = false;
+	m_bPlantC4Anywhere = false;
 }
 
 void CCSPlayer::OnSpawn()
