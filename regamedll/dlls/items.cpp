@@ -342,6 +342,8 @@ BOOL CItemLongJump::MyTouch(CBasePlayer *pPlayer)
 		pPlayer->m_fLongJump = TRUE;
 		SET_PHYSICS_KEY_VALUE(pPlayer->edict(), "slj", "1");
 
+		EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/gunpickup2.wav", VOL_NORM, ATTN_NORM);
+
 		MESSAGE_BEGIN(MSG_ONE, gmsgItemPickup, nullptr, pPlayer->pev);
 			WRITE_STRING(STRING(pev->classname));
 		MESSAGE_END();
