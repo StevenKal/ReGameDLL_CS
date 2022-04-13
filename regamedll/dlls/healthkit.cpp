@@ -106,6 +106,12 @@ void CWallHealth::Spawn()
 #ifdef REGAMEDLL_FIXES
 void CWallHealth::Restart()
 {
+	// Stop looping sound.
+	if (m_iOn > 1)
+		STOP_SOUND(ENT(pev), CHAN_STATIC, "items/medcharge4.wav");
+
+	m_iOn = 0;
+
 	pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
 
@@ -196,7 +202,10 @@ void CWallHealth::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 
 void CWallHealth::Recharge()
 {
-	EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", VOL_NORM, ATTN_NORM);
+	if(pev->frame == 1.0f)
+	{
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", VOL_NORM, ATTN_NORM);
+	}
 
 	int healthValue = (int)gSkillData.healthchargerCapacity;
 #ifdef REGAMEDLL_FIXES
