@@ -590,7 +590,7 @@ void CBasePlayerItem::DefaultTouch(CBaseEntity *pOther)
 	&& m_iId != WEAPON_USP
 	&& m_iId != WEAPON_GLOCK18
 	&& m_iId != WEAPON_P228
-	&& m_iId != WEAPON_FIVESEVEN // Gun added.
+	&& m_iId != WEAPON_FIVESEVEN
 	&& m_iId != WEAPON_DEAGLE
 	&& m_iId != WEAPON_KNIFE)
 	{
