@@ -104,6 +104,8 @@ void CItem::Spawn()
 		UTIL_Remove(this);
 		return;
 	}
+
+	pev->oldorigin = pev->origin;
 }
 
 void CItem::ItemTouch(CBaseEntity *pOther)
@@ -126,6 +128,30 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 			Respawn();
 		else
 			UTIL_Remove(this);
+	}
+}
+
+void CItem::Restart()
+{
+	pev->movetype = MOVETYPE_TOSS;
+	pev->solid    = SOLID_TRIGGER;
+
+	if(pev->origin != pev->oldorigin)
+	{
+		UTIL_SetOrigin(pev, pev->oldorigin);
+		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
+
+		if (!DROP_TO_FLOOR(ENT(pev)))
+		{
+			UTIL_Remove(this);
+			return;
+		}
+	}
+
+	if(pev->effects & EF_NODRAW)
+	{
+		SetThink(&CItem::Materialize);
+		pev->nextthink = gpGlobals->time;
 	}
 }
 
@@ -375,8 +401,6 @@ BOOL CItemKevlar::MyTouch(CBasePlayer *pPlayer)
 #ifdef REGAMEDLL_ADD
 	if (!g_bItemCreatedByBuying && pPlayer->HasRestrictItem(ITEM_KEVLAR, ITEM_TYPE_TOUCHED))
 		return FALSE;
-
-	g_bItemCreatedByBuying = false;
 #endif
 
 #ifdef REGAMEDLL_FIXES
@@ -402,10 +426,12 @@ BOOL CItemKevlar::MyTouch(CBasePlayer *pPlayer)
 #endif
 	MESSAGE_END();
 
-	if (TheTutor)
+	if (TheTutor && g_bItemCreatedByBuying)
 	{
 		TheTutor->OnEvent(EVENT_PLAYER_BOUGHT_SOMETHING, pPlayer);
 	}
+
+	g_bItemCreatedByBuying = false;
 
 	return TRUE;
 }
@@ -429,8 +455,6 @@ BOOL CItemAssaultSuit::MyTouch(CBasePlayer *pPlayer)
 #ifdef REGAMEDLL_ADD
 	if (!g_bItemCreatedByBuying && pPlayer->HasRestrictItem(ITEM_ASSAULT, ITEM_TYPE_TOUCHED))
 		return FALSE;
-
-	g_bItemCreatedByBuying = false;
 #endif
 
 #ifdef REGAMEDLL_FIXES
@@ -451,10 +475,12 @@ BOOL CItemAssaultSuit::MyTouch(CBasePlayer *pPlayer)
 		WRITE_BYTE(1); // 0 = ARMOR_KEVLAR, 1 = ARMOR_VESTHELM
 	MESSAGE_END();
 
-	if (TheTutor)
+	if (TheTutor && g_bItemCreatedByBuying)
 	{
 		TheTutor->OnEvent(EVENT_PLAYER_BOUGHT_SOMETHING, pPlayer);
 	}
+
+	g_bItemCreatedByBuying = false;
 
 	return TRUE;
 }
@@ -499,7 +525,7 @@ BOOL CItemThighPack::MyTouch(CBasePlayer *pPlayer)
 	pPlayer->SendItemStatus();
 	EMIT_SOUND(pPlayer->edict(), CHAN_VOICE, "items/kevlar.wav", VOL_NORM, ATTN_NORM);
 
-	if (TheTutor)
+	if (TheTutor && g_bItemCreatedByBuying)
 	{
 		TheTutor->OnEvent(EVENT_PLAYER_BOUGHT_SOMETHING, pPlayer);
 	}
