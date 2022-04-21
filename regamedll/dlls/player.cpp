@@ -8401,13 +8401,7 @@ void CStripWeapons::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 		{
 			if (m_iszSpecialItem)
 			{
-				const char *weaponName = STRING(m_iszSpecialItem);
-				WeaponSlotInfo *slotInfo = GetWeaponSlot(weaponName);
-
-				if (slotInfo != nullptr && slotInfo->slot == GRENADE_SLOT)
-					pPlayer->CSPlayer()->RemovePlayerItemEx(weaponName, true);
-				else
-					pPlayer->CSPlayer()->RemovePlayerItem(weaponName);
+				pPlayer->CSPlayer()->RemovePlayerItem(STRING(m_iszSpecialItem));
 			}
 
 			for (int slot = PRIMARY_WEAPON_SLOT; slot <= ALL_OTHER_ITEMS; slot++)
@@ -8417,22 +8411,17 @@ void CStripWeapons::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 				if (slot == ALL_OTHER_ITEMS)
 				{
+					pPlayer->CSPlayer()->RemovePlayerItem("item_kevlar");
+					pPlayer->CSPlayer()->RemovePlayerItem("item_assaultsuit");
 					pPlayer->CSPlayer()->RemovePlayerItem("item_thighpack");
 					pPlayer->CSPlayer()->RemovePlayerItem("item_longjump");
-					pPlayer->CSPlayer()->RemovePlayerItem("item_assaultsuit");
-					pPlayer->CSPlayer()->RemovePlayerItem("item_kevlar");
-					pPlayer->CSPlayer()->RemovePlayerItem("item_thighpack");
 					pPlayer->CSPlayer()->RemovePlayerItem("weapon_shield");
 				}
 				else
 				{
 					pPlayer->ForEachItem(slot, [pPlayer](CBasePlayerItem *pItem)
 					{
-						if (pItem->iItemSlot() == GRENADE_SLOT)
-							pPlayer->CSPlayer()->RemovePlayerItemEx(STRING(pItem->pev->classname), true);
-						else
-							pPlayer->CSPlayer()->RemovePlayerItem(STRING(pItem->pev->classname));
-
+						pPlayer->CSPlayer()->RemovePlayerItem(STRING(pItem->pev->classname));
 						return false;
 					});
 				}
