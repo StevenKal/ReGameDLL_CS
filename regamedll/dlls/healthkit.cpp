@@ -202,7 +202,7 @@ void CWallHealth::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 
 void CWallHealth::Recharge()
 {
-	if(pev->frame == 1.0f)
+	if(pev->frame == 1.0f && (!CSGameRules() || CSGameRules()->GetRoundElapsedTime() >= 0.20f))
 	{
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", VOL_NORM, ATTN_NORM);
 	}
