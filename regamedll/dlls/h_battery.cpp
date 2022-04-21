@@ -180,7 +180,7 @@ void CRecharge::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useT
 
 void CRecharge::Recharge()
 {
-	if(pev->frame == 1.0f)
+	if(pev->frame == 1.0f && (!CSGameRules() || CSGameRules()->GetRoundElapsedTime() >= 0.20f))
 	{
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM);
 	}
