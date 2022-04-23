@@ -97,15 +97,44 @@ void CItem::Spawn()
 	UTIL_SetOrigin(pev, pev->origin);
 	UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
 
+	if(pev->model)
+	{
+		SET_MODEL(ENT(pev), pev->model);
+	}
+
 	SetTouch(&CItem::ItemTouch);
 
-	if (!DROP_TO_FLOOR(ENT(pev)))
+	if (DROP_TO_FLOOR(ENT(pev)) <= 0)
 	{
 		UTIL_Remove(this);
 		return;
 	}
 
 	pev->oldorigin = pev->origin;
+}
+
+void CItem::Restart()
+{
+	pev->movetype = MOVETYPE_TOSS;
+	pev->solid    = SOLID_TRIGGER;
+
+	if(pev->origin != pev->oldorigin)
+	{
+		UTIL_SetOrigin(pev, pev->oldorigin);
+		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
+
+		if (DROP_TO_FLOOR(ENT(pev)) <= 0)
+		{
+			UTIL_Remove(this);
+			return;
+		}
+	}
+
+	if(pev->effects & EF_NODRAW)
+	{
+		SetThink(&CItem::Materialize);
+		pev->nextthink = gpGlobals->time;
+	}
 }
 
 void CItem::ItemTouch(CBaseEntity *pOther)
@@ -128,30 +157,6 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 			Respawn();
 		else
 			UTIL_Remove(this);
-	}
-}
-
-void CItem::Restart()
-{
-	pev->movetype = MOVETYPE_TOSS;
-	pev->solid    = SOLID_TRIGGER;
-
-	if(pev->origin != pev->oldorigin)
-	{
-		UTIL_SetOrigin(pev, pev->oldorigin);
-		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
-
-		if (!DROP_TO_FLOOR(ENT(pev)))
-		{
-			UTIL_Remove(this);
-			return;
-		}
-	}
-
-	if(pev->effects & EF_NODRAW)
-	{
-		SetThink(&CItem::Materialize);
-		pev->nextthink = gpGlobals->time;
 	}
 }
 
@@ -190,13 +195,16 @@ void CItem::Materialize()
 void CItemSuit::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_kevlar.mdl");
 	CItem::Spawn();
 }
 
 void CItemSuit::Precache()
 {
-	PRECACHE_MODEL("models/w_kevlar.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_kevlar.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 	PRECACHE_SOUND("items/tr_kevlar.wav");
 }
 
@@ -218,13 +226,16 @@ LINK_ENTITY_TO_CLASS(item_suit, CItemSuit, CCSItemSuit)
 void CItemBattery::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_battery.mdl");
 	CItem::Spawn();
 }
 
 void CItemBattery::Precache()
 {
-	PRECACHE_MODEL("models/w_battery.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_battery.mdl"));
+	}
+	PRECACHE_MODEL(pev->model);
 	PRECACHE_SOUND("items/gunpickup2.wav");
 }
 
@@ -280,13 +291,16 @@ LINK_ENTITY_TO_CLASS(item_battery, CItemBattery, CCSItemBattery)
 void CItemAntidote::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_antidote.mdl");
 	CItem::Spawn();
 }
 
 void CItemAntidote::Precache()
 {
-	PRECACHE_MODEL("models/w_antidote.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_antidote.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 }
 
 BOOL CItemAntidote::MyTouch(CBasePlayer *pPlayer)
@@ -307,31 +321,15 @@ LINK_ENTITY_TO_CLASS(item_antidote, CItemAntidote, CCSItemAntidote)
 void CItemSecurity::Spawn()
 {
 	Precache();
-
-	if (pev->model.IsNullOrEmpty())
-	{
-		// default model
-		SET_MODEL(ENT(pev), "models/w_security.mdl");
-	}
-	else
-	{
-		// custom model
-		SET_MODEL(ENT(pev), pev->model);
-	}
-
 	CItem::Spawn();
 }
 
 void CItemSecurity::Precache()
 {
-	if (pev->model.IsNullOrEmpty())
+	if(pev->model.IsNullOrEmpty())
 	{
-		// default model
-		PRECACHE_MODEL("models/w_security.mdl");
-		return;
+		pev->model = ALLOC_STRING("models/w_security.mdl");
 	}
-
-	// custom model
 	PRECACHE_MODEL(pev->model);
 }
 
@@ -346,13 +344,16 @@ LINK_ENTITY_TO_CLASS(item_security, CItemSecurity, CCSItemSecurity)
 void CItemLongJump::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_longjump.mdl");
 	CItem::Spawn();
 }
 
 void CItemLongJump::Precache()
 {
-	PRECACHE_MODEL("models/w_longjump.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_longjump.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 }
 
 BOOL CItemLongJump::MyTouch(CBasePlayer *pPlayer)
@@ -390,13 +391,16 @@ LINK_ENTITY_TO_CLASS(item_longjump, CItemLongJump, CCSItemLongJump)
 void CItemKevlar::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_kevlar.mdl");
 	CItem::Spawn();
 }
 
 void CItemKevlar::Precache()
 {
-	PRECACHE_MODEL("models/w_kevlar.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_kevlar.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 }
 
 BOOL CItemKevlar::MyTouch(CBasePlayer *pPlayer)
@@ -444,13 +448,16 @@ LINK_ENTITY_TO_CLASS(item_kevlar, CItemKevlar, CCSItemKevlar)
 void CItemAssaultSuit::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_assault.mdl");
 	CItem::Spawn();
 }
 
 void CItemAssaultSuit::Precache()
 {
-	PRECACHE_MODEL("models/w_assault.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_assault.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 }
 
 BOOL CItemAssaultSuit::MyTouch(CBasePlayer *pPlayer)
@@ -493,13 +500,16 @@ LINK_ENTITY_TO_CLASS(item_assaultsuit, CItemAssaultSuit, CCSItemAssaultSuit)
 void CItemThighPack::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_thighpack.mdl");
 	CItem::Spawn();
 }
 
 void CItemThighPack::Precache()
 {
-	PRECACHE_MODEL("models/w_thighpack.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_thighpack.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 }
 
 BOOL CItemThighPack::MyTouch(CBasePlayer *pPlayer)
