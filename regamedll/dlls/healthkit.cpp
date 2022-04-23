@@ -5,14 +5,16 @@ LINK_ENTITY_TO_CLASS(item_healthkit, CHealthKit, CCSHealthKit)
 void CHealthKit::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_medkit.mdl");
-
 	CItem::Spawn();
 }
 
 void CHealthKit::Precache()
 {
-	PRECACHE_MODEL("models/w_medkit.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_medkit.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 	PRECACHE_SOUND("items/smallmedkit1.wav");
 }
 
