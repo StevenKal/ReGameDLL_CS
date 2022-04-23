@@ -233,7 +233,7 @@ void CItemBattery::Precache()
 {
 	if(pev->model.IsNullOrEmpty())
 	{
-		pev->model = ALLOC_STRING("models/w_battery.mdl"));
+		pev->model = ALLOC_STRING("models/w_battery.mdl");
 	}
 	PRECACHE_MODEL(pev->model);
 	PRECACHE_SOUND("items/gunpickup2.wav");
