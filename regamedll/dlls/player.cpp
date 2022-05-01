@@ -6277,7 +6277,7 @@ void CBasePlayer::FlashlightTurnOn()
 			WRITE_BYTE(m_iFlashBattery);
 		MESSAGE_END();
 
-		m_flFlashLightTime = gpGlobals->time + FLASH_DRAIN_TIME;
+		m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightDrainTime;
 	}
 }
 
@@ -6291,7 +6291,7 @@ void CBasePlayer::FlashlightTurnOff()
 		WRITE_BYTE(m_iFlashBattery);
 	MESSAGE_END();
 
-	m_flFlashLightTime = gpGlobals->time + FLASH_CHARGE_TIME;
+	m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightChargeTime;
 }
 
 // When recording a demo, we need to have the server tell us the entire client state so that the client side .dll can behave correctly.
@@ -7321,7 +7321,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(UpdateClientData)()
 		{
 			if (m_iFlashBattery)
 			{
-				m_flFlashLightTime = gpGlobals->time + FLASH_DRAIN_TIME;
+				m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightDrainTime;
 
 				if (--m_iFlashBattery <= 0)
 				{
@@ -7333,7 +7333,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(UpdateClientData)()
 		{
 			if (m_iFlashBattery < 100)
 			{
-				m_flFlashLightTime = gpGlobals->time + FLASH_CHARGE_TIME;
+				m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightChargeTime;
 				m_iFlashBattery++;
 			}
 			else
