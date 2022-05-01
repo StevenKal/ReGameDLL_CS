@@ -127,6 +127,10 @@ void CGameRules::RefreshSkillData()
 	gSkillData.batteryCapacity = 15;
 	gSkillData.healthchargerCapacity = 50;
 	gSkillData.healthkitCapacity = 15;
+
+	// Extended for own purpose.
+	gSkillData.flFlashLightDrainTime  = FLASH_DRAIN_TIME;
+	gSkillData.flFlashLightChargeTime = FLASH_CHARGE_TIME;
 }
 
 LINK_HOOK_CHAIN2(CGameRules *, InstallGameRules)
