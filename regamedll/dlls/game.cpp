@@ -162,6 +162,7 @@ cvar_t allchat                           = { "sv_allchat", "0", 0, 0.0f, nullptr
 cvar_t sv_autobunnyhopping               = { "sv_autobunnyhopping", "0", 0, 0.0f, nullptr };
 cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.0f, nullptr };
 cvar_t plant_c4_anywhere                 = { "mp_plant_c4_anywhere", "0", 0, 0.0f, nullptr };
+cvar_t give_c4_frags                     = { "mp_give_c4_frags", "3", 0, 3.0f, nullptr };
 
 void GameDLL_Version_f()
 {
@@ -198,7 +199,17 @@ void GameDLL_EndRound_f()
 void GameDLL_SwapTeams_f()
 {
 	CSGameRules()->SwapAllPlayers();
-	CVAR_SET_FLOAT("sv_restartround", 1.0);
+
+	float value = 1.0f;
+	if(CMD_ARGC() >= 2)
+	{
+		value = Q_atof(CMD_ARGV(1));
+	}
+
+	if (value > 0.0f)
+	{
+		CVAR_SET_FLOAT("sv_restartround", value);
+	}
 }
 
 #endif // REGAMEDLL_ADD
@@ -393,6 +404,7 @@ void EXT_FUNC GameDLLInit()
 	CVAR_REGISTER(&sv_autobunnyhopping);
 	CVAR_REGISTER(&sv_enablebunnyhopping);
 	CVAR_REGISTER(&plant_c4_anywhere);
+	CVAR_REGISTER(&give_c4_frags);
 
 	// print version
 	CONSOLE_ECHO("ReGameDLL version: " APP_VERSION "\n");
