@@ -587,11 +587,12 @@ void CBasePlayerItem::DefaultTouch(CBaseEntity *pOther)
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>(pOther);
 
 	if (pPlayer->m_bIsVIP
-		&& m_iId != WEAPON_USP
-		&& m_iId != WEAPON_GLOCK18
-		&& m_iId != WEAPON_P228
-		&& m_iId != WEAPON_DEAGLE
-		&& m_iId != WEAPON_KNIFE)
+	&& m_iId != WEAPON_USP
+	&& m_iId != WEAPON_GLOCK18
+	&& m_iId != WEAPON_P228
+	&& m_iId != WEAPON_FIVESEVEN
+	&& m_iId != WEAPON_DEAGLE
+	&& m_iId != WEAPON_KNIFE)
 	{
 		return;
 	}
@@ -1111,7 +1112,6 @@ void CBasePlayerItem::DestroyItem()
 		// if attached to a player, remove.
 		if (m_pPlayer->RemovePlayerItem(this))
 		{
-
 #ifdef REGAMEDLL_FIXES
 			m_pPlayer->pev->weapons &= ~(1 << m_iId);
 
@@ -1120,8 +1120,11 @@ void CBasePlayerItem::DestroyItem()
 				m_pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
 			}
 #endif
-
 		}
+#ifdef REGAMEDLL_FIXES
+		else if(!(pev->flags & FL_KILLME)) // Do not kill the item when unable to unhook from player's inventory (as if we manually refused this).
+			return;
+#endif
 	}
 
 	Kill();
@@ -1154,8 +1157,19 @@ void CBasePlayerItem::Kill()
 
 void CBasePlayerItem::Holster(int skiplocal)
 {
-	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->weaponmodel = 0;
+	if(m_pPlayer)
+	{
+		m_pPlayer->pev->viewmodel = 0;
+		m_pPlayer->pev->weaponmodel = 0;
+
+#ifdef REGAMEDLL_FIXES
+		if(m_pPlayer->HasShield())
+		{
+			m_pPlayer->m_bShieldDrawn = false;
+			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
+		}
+#endif
+	}
 }
 
 void CBasePlayerItem::AttachToPlayer(CBasePlayer *pPlayer)
@@ -1371,7 +1385,7 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 		return FALSE;
 
 	m_pPlayer->TabulateAmmo();
-#ifdef REGAMEDLL_API
+#ifdef REGAMEDLL_FIXES
 	m_pPlayer->pev->viewmodel = ALLOC_STRING(szViewModel);
 	m_pPlayer->pev->weaponmodel = ALLOC_STRING(szWeaponModel);
 #else
@@ -1391,6 +1405,13 @@ BOOL EXT_FUNC CBasePlayerWeapon::__API_HOOK(DefaultDeploy)(char *szViewModel, ch
 	m_pPlayer->pev->fov = DEFAULT_FOV;
 	m_pPlayer->m_iLastZoom = DEFAULT_FOV;
 	m_pPlayer->m_bResumeZoom = false;
+
+#ifdef REGAMEDLL_FIXES
+	if(m_pPlayer->HasShield() && m_iId != WEAPON_C4 && m_pPlayer->pev->weaponmodel)
+	{
+		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
+	}
+#endif
 
 	return TRUE;
 }
@@ -1550,8 +1571,21 @@ void CBasePlayerWeapon::Holster(int skiplocal)
 {
 	// cancel any reload in progress.
 	m_fInReload = FALSE;
-	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->weaponmodel = 0;
+
+	if(m_pPlayer)
+	{
+		m_pPlayer->pev->viewmodel = 0;
+		m_pPlayer->pev->weaponmodel = 0;
+
+#ifdef REGAMEDLL_FIXES
+		if(m_pPlayer->HasShield())
+		{
+			m_iWeaponState &= ~WPNSTATE_SHIELD_DRAWN;
+			m_pPlayer->m_bShieldDrawn = false;
+			m_pPlayer->pev->gamestate = HITGROUP_SHIELD_DISABLED;
+		}
+#endif
+	}
 }
 
 // called by the new item with the existing item as parameter
@@ -1835,7 +1869,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 			if (FClassnameIs(pItem->pev, "weapon_c4"))
 			{
 #ifdef REGAMEDLL_FIXES
-				if (pPlayer->m_iTeam != TERRORIST)
+				if (pPlayer->m_iTeam != TERRORIST || pPlayer->m_bHasC4)
 					return;
 #else
 				if (pPlayer->m_iTeam != TERRORIST || pPlayer->pev->deadflag != DEAD_NO)

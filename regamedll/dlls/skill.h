@@ -49,6 +49,10 @@ struct skilldata_t
 	float batteryCapacity;
 	float healthchargerCapacity;
 	float healthkitCapacity;
+
+	// Extended for own purpose.
+	float flFlashLightDrainTime;
+	float flFlashLightChargeTime;
 };
 
 extern skilldata_t gSkillData;

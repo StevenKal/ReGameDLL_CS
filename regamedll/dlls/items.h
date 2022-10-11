@@ -91,6 +91,8 @@ class CItem: public CBaseEntity
 {
 public:
 	virtual void Spawn();
+	virtual void Restart();
+	virtual int ObjectCaps() { return (CBaseEntity::ObjectCaps() | FCAP_MUST_RESET); }
 	virtual CBaseEntity *Respawn();
 	virtual BOOL MyTouch(CBasePlayer *pPlayer) { return FALSE; }
 

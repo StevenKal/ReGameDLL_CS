@@ -9,6 +9,7 @@ cvar_t *g_psv_friction    = nullptr;
 cvar_t *g_psv_stopspeed   = nullptr;
 cvar_t *g_psv_stepsize    = nullptr;
 cvar_t *g_psv_clienttrace = nullptr;
+cvar_t *g_psv_zmax        = nullptr;
 
 cvar_t displaysoundlist      = { "displaysoundlist", "0", 0, 0.0f, nullptr };
 cvar_t timelimit             = { "mp_timelimit", "0", FCVAR_SERVER, 0.0f, nullptr };
@@ -164,6 +165,9 @@ cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.
 cvar_t plant_c4_anywhere                 = { "mp_plant_c4_anywhere", "0", 0, 0.0f, nullptr };
 cvar_t give_c4_frags                     = { "mp_give_c4_frags", "3", 0, 3.0f, nullptr };
 
+// Note: Just for my plugins & cie.
+cvar_t game_version_personnal            = { "game_version_personnal", "1.3.0-public-AMXModDev", FCVAR_SERVER, 0.0f, nullptr };
+
 void GameDLL_Version_f()
 {
 	if (Q_stricmp(CMD_ARGV(1), "version") != 0)
@@ -225,6 +229,7 @@ void EXT_FUNC GameDLLInit()
 	g_psv_stopspeed   = CVAR_GET_POINTER("sv_stopspeed");
 	g_psv_stepsize    = CVAR_GET_POINTER("sv_stepsize");
 	g_psv_clienttrace = CVAR_GET_POINTER("sv_clienttrace");
+	g_psv_zmax        = CVAR_GET_POINTER("sv_zmax");
 
 	CVAR_REGISTER(&displaysoundlist);
 	CVAR_REGISTER(&timelimit);
@@ -405,6 +410,8 @@ void EXT_FUNC GameDLLInit()
 	CVAR_REGISTER(&sv_enablebunnyhopping);
 	CVAR_REGISTER(&plant_c4_anywhere);
 	CVAR_REGISTER(&give_c4_frags);
+
+	CVAR_REGISTER(&game_version_personnal);
 
 	// print version
 	CONSOLE_ECHO("ReGameDLL version: " APP_VERSION "\n");

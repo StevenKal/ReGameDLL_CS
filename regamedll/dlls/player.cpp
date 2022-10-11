@@ -569,7 +569,13 @@ Vector CBasePlayer::GetGunPosition()
 
 bool CBasePlayer::IsHittingShield(Vector &vecDirection, TraceResult *ptr)
 {
+#ifdef REGAMEDLL_FIXES
+	if (!HasShield()
+	|| pev->gamestate == HITGROUP_SHIELD_DISABLED
+	|| (m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4))
+#else
 	if ((m_pActiveItem && m_pActiveItem->m_iId == WEAPON_C4) || !HasShield())
+#endif
 		return false;
 
 	if (ptr->iHitgroup == HITGROUP_SHIELD)
@@ -2436,7 +2442,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(SetAnimation)(PLAYER_ANIM playerAnim)
 	if (!pev->modelindex)
 		return;
 
+#ifdef REGAMEDLL_FIXES
+	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield() && pev->gamestate == HITGROUP_SHIELD_ENABLED)
+#else
 	if ((playerAnim == PLAYER_FLINCH || playerAnim == PLAYER_LARGE_FLINCH) && HasShield())
+#endif
 		return;
 
 	if (playerAnim != PLAYER_FLINCH && playerAnim != PLAYER_LARGE_FLINCH && m_flFlinchTime > gpGlobals->time && pev->health > 0.0f)
@@ -4010,6 +4020,11 @@ void CBasePlayer::PlayerUse()
 	if (!((pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE))
 		return;
 
+#ifdef REGAMEDLL_FIXES
+	if (IsReloading())
+		return;
+#endif
+
 	// Hit Use on a train?
 	if (m_afButtonPressed & IN_USE)
 	{
@@ -5045,6 +5060,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(PostThink)()
 		}
 	}
 
+#ifdef REGAMEDLL_FIXES
+	// Handle use events
+	PlayerUse();
+	ImpulseCommands();
+#endif
 	// do weapon stuff
 	ItemPostFrame();
 
@@ -6257,7 +6277,7 @@ void CBasePlayer::FlashlightTurnOn()
 			WRITE_BYTE(m_iFlashBattery);
 		MESSAGE_END();
 
-		m_flFlashLightTime = gpGlobals->time + FLASH_DRAIN_TIME;
+		m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightDrainTime;
 	}
 }
 
@@ -6271,7 +6291,7 @@ void CBasePlayer::FlashlightTurnOff()
 		WRITE_BYTE(m_iFlashBattery);
 	MESSAGE_END();
 
-	m_flFlashLightTime = gpGlobals->time + FLASH_CHARGE_TIME;
+	m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightChargeTime;
 }
 
 // When recording a demo, we need to have the server tell us the entire client state so that the client side .dll can behave correctly.
@@ -6301,8 +6321,10 @@ void EXT_FUNC CBasePlayer::__API_HOOK(ImpulseCommands)()
 {
 	TraceResult tr;
 
+#ifndef REGAMEDLL_FIXES
 	// Handle use events
 	PlayerUse();
+#endif
 
 	int iImpulse = pev->impulse;
 
@@ -6920,7 +6942,9 @@ void CBasePlayer::ItemPostFrame()
 #endif
 		return;
 
+#ifndef REGAMEDLL_FIXES
 	ImpulseCommands();
+#endif
 
 	if (m_pActiveItem)
 		m_pActiveItem->ItemPostFrame();
@@ -6928,7 +6952,7 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory(int iAmmoIndex)
 {
-	if (iAmmoIndex == -1)
+	if (iAmmoIndex <= -1)
 		return -1;
 
 	return m_rgAmmo[iAmmoIndex];
@@ -7297,7 +7321,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(UpdateClientData)()
 		{
 			if (m_iFlashBattery)
 			{
-				m_flFlashLightTime = gpGlobals->time + FLASH_DRAIN_TIME;
+				m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightDrainTime;
 
 				if (--m_iFlashBattery <= 0)
 				{
@@ -7309,7 +7333,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(UpdateClientData)()
 		{
 			if (m_iFlashBattery < 100)
 			{
-				m_flFlashLightTime = gpGlobals->time + FLASH_CHARGE_TIME;
+				m_flFlashLightTime = gpGlobals->time + gSkillData.flFlashLightChargeTime;
 				m_iFlashBattery++;
 			}
 			else
@@ -7756,9 +7780,12 @@ void CBasePlayer::UpdateStatusBar()
 	UTIL_MakeVectors(pev->v_angle + pev->punchangle);
 
 	Vector vecSrc = EyePosition();
-	Vector vecEnd = vecSrc + (gpGlobals->v_forward * ((pev->flags & FL_SPECTATOR) != 0 ? MAX_SPEC_ID_RANGE : MAX_ID_RANGE));
+	Vector vecEnd = vecSrc + (gpGlobals->v_forward * (g_psv_zmax ? g_psv_zmax->value : ((pev->flags & FL_SPECTATOR) != 0 ? MAX_SPEC_ID_RANGE : MAX_ID_RANGE)));
 
+	int iSolidityTypeArray[MAX_CLIENTS + 1];
+	UTIL_ManageClientsSolidity(true, 1, SOLID_SLIDEBOX, iSolidityTypeArray); // Store in array & set solidity from variable.
 	UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, edict(), &tr);
+	UTIL_ManageClientsSolidity(false, 2, 0, iSolidityTypeArray); // Restore solidity from array.
 
 	if (tr.flFraction != 1.0f)
 	{

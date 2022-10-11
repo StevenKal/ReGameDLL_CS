@@ -101,6 +101,10 @@ void CC4::Holster(int skiplocal)
 		m_pPlayer->pev->gamestate = HITGROUP_SHIELD_ENABLED;
 		m_bHasShield = false;
 	}
+
+#ifdef REGAMEDLL_FIXES
+	CBasePlayerWeapon::Holster();
+#endif
 }
 
 void CC4::PrimaryAttack()
@@ -168,8 +172,9 @@ void CC4::PrimaryAttack()
 				m_fArmedTime = 0;
 
 				Broadcast("BOMBPL");
+#ifndef REGAMEDLL_FIXES
 				m_pPlayer->m_bHasC4 = false;
-
+#endif
 				if (pev->speed != 0 && CSGameRules())
 				{
 					CSGameRules()->m_iC4Timer = int(pev->speed);
@@ -217,19 +222,34 @@ void CC4::PrimaryAttack()
 
 				// Play the plant sound.
 				EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/c4_plant.wav", VOL_NORM, ATTN_NORM);
-
+#ifndef REGAMEDLL_FIXES
 				// hide the backpack in Terrorist's models.
 				m_pPlayer->pev->body = 0;
-
+#endif
 				// release the player from being frozen
 				m_pPlayer->ResetMaxSpeed();
-
+#ifndef REGAMEDLL_FIXES
 				// No more c4!
 				m_pPlayer->SetBombIcon(FALSE);
-
+#endif
 				if (--m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 				{
-					RetireWeapon();
+#ifdef REGAMEDLL_FIXES
+					m_pPlayer->m_bHasC4 = false;
+					// hide the backpack in Terrorist's models.
+					m_pPlayer->pev->body = 0;
+					// No more c4!
+					m_pPlayer->SetBombIcon(FALSE);
+
+					if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
+					{
+						Holster();
+					}
+					else
+#endif
+					{
+						RetireWeapon();
+					}
 					return;
 				}
 			}
@@ -299,7 +319,16 @@ void CC4::WeaponIdle()
 	{
 		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		{
-			RetireWeapon();
+#ifdef REGAMEDLL_FIXES
+			if ((m_pPlayer->pev->weapons & ~(1 << WEAPON_SUIT | 1 << m_iId )) == 0)
+			{
+				Holster();
+			}
+			else
+#endif
+			{
+				RetireWeapon();
+			}
 			return;
 		}
 

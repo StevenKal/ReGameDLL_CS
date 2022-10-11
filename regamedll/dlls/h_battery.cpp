@@ -59,6 +59,12 @@ void CRecharge::Spawn()
 #ifdef REGAMEDLL_FIXES
 void CRecharge::Restart()
 {
+	// Stop looping sound.
+	if (m_iOn > 1)
+		STOP_SOUND(ENT(pev), CHAN_STATIC, "items/suitcharge1.wav");
+
+	m_iOn = 0;
+
 	pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
 
@@ -174,6 +180,11 @@ void CRecharge::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useT
 
 void CRecharge::Recharge()
 {
+	if(pev->frame == 1.0f && (!CSGameRules() || CSGameRules()->GetRoundElapsedTime() >= 0.20f))
+	{
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM);
+	}
+
 	int armorValue = (int)gSkillData.suitchargerCapacity;
 #ifdef REGAMEDLL_FIXES
 	if (pev->armorvalue != 0.0f) {

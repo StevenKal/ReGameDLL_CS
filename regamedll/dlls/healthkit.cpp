@@ -5,14 +5,16 @@ LINK_ENTITY_TO_CLASS(item_healthkit, CHealthKit, CCSHealthKit)
 void CHealthKit::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_medkit.mdl");
-
 	CItem::Spawn();
 }
 
 void CHealthKit::Precache()
 {
-	PRECACHE_MODEL("models/w_medkit.mdl");
+	if(pev->model.IsNullOrEmpty())
+	{
+		pev->model = ALLOC_STRING("models/w_medkit.mdl");
+	}
+	PRECACHE_MODEL(pev->model);
 	PRECACHE_SOUND("items/smallmedkit1.wav");
 }
 
@@ -106,6 +108,12 @@ void CWallHealth::Spawn()
 #ifdef REGAMEDLL_FIXES
 void CWallHealth::Restart()
 {
+	// Stop looping sound.
+	if (m_iOn > 1)
+		STOP_SOUND(ENT(pev), CHAN_STATIC, "items/medcharge4.wav");
+
+	m_iOn = 0;
+
 	pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
 
@@ -196,7 +204,10 @@ void CWallHealth::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 
 void CWallHealth::Recharge()
 {
-	EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", VOL_NORM, ATTN_NORM);
+	if(pev->frame == 1.0f && (!CSGameRules() || CSGameRules()->GetRoundElapsedTime() >= 0.20f))
+	{
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", VOL_NORM, ATTN_NORM);
+	}
 
 	int healthValue = (int)gSkillData.healthchargerCapacity;
 #ifdef REGAMEDLL_FIXES

@@ -208,8 +208,12 @@ BOOL CFuncTank::OnControls(entvars_t *pevTest)
 	if (!(pev->spawnflags & SF_TANK_CANCONTROL))
 		return FALSE;
 
+#ifdef REGAMEDLL_FIXES
+	if((pev->origin - pevTest->origin).Length() < (m_vecControllerUsePos.x + m_vecControllerUsePos.y))
+#else
 	Vector offset = pevTest->origin - pev->origin;
 	if ((m_vecControllerUsePos - pevTest->origin).Length() < 30.0f)
+#endif
 	{
 		return TRUE;
 	}
@@ -235,13 +239,31 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 
 	m_pController = pController;
 
-	if (m_pController->m_pActiveItem)
-	{
-		m_pController->m_pActiveItem->Holster();
-		m_pController->pev->weaponmodel = 0;
+	CBasePlayerWeapon *pActiveWeapon = static_cast<CBasePlayerWeapon *>(m_pController->m_pActiveItem);
 
+	if (pActiveWeapon)
+	{
+#ifdef REGAMEDLL_FIXES
+		// Fix problem when we holster a granada before its "RetireWeapon" code call, to avoid having no new weapon/HUD selection when we stop controlling the tank.
+		// This happens when we throw our last granada and we quickly use the tank,
+		// the "GetNextBestWeapon" code inside "RetireWeapon" will not be called, since "m_flReleaseThrow" will be reset to -1.
+		if (IsGrenadeWeapon(pActiveWeapon->m_iId)
+		&& m_pController->m_rgAmmo[pActiveWeapon->m_iPrimaryAmmoType] <= 0
+		&& (m_pController->pev->weapons & ~(1 << WEAPON_SUIT | 1 << pActiveWeapon->m_iId)))
+		{
+			pActiveWeapon->RetireWeapon();
+		}
+		else
+#endif
+		{
+			pActiveWeapon->Holster();
+		}
+
+#ifndef REGAMEDLL_FIXES
+		m_pController->pev->weaponmodel = 0;
 #ifdef BUILD_LATEST_FIXES
 		m_pController->pev->viewmodel = 0;
+#endif
 #endif
 
 #ifdef REGAMEDLL_FIXES
@@ -254,7 +276,12 @@ BOOL CFuncTank::StartControl(CBasePlayer *pController)
 	}
 
 	m_pController->m_iHideHUD |= HIDEHUD_WEAPONS;
+#ifdef REGAMEDLL_FIXES
+	m_vecControllerUsePos.x = (pev->origin - m_pController->pev->origin).Length();
+	m_vecControllerUsePos.y = MAX_PLAYER_USE_TANK_RADIUS;
+#else
 	m_vecControllerUsePos = m_pController->pev->origin;
+#endif
 
 	pev->nextthink = pev->ltime + 0.1f;
 
@@ -876,6 +903,25 @@ void CFuncTankControls::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	if (m_pTank)
 	{
 		m_pTank->Use(pActivator, pCaller, useType, value);
+
+#ifdef REGAMEDLL_FIXES
+		m_pTank->m_vecControllerUsePos.x = (m_pTank->pev->origin - pActivator->pev->origin).Length();
+
+		// Extended distance setting, up to "MAX_PLAYER_USE_TANK_RADIUS" units or more depending on how close we were in "PlayerUse", or if we did not used it.
+		if(pActivator && pActivator->IsPlayer() && (((CBasePlayer *)pActivator)->m_afButtonPressed & IN_USE))
+		{
+			m_pTank->m_vecControllerUsePos.y = MAX_PLAYER_USE_RADIUS - (this->Center() - pActivator->pev->origin).Length();
+
+			if(m_pTank->m_vecControllerUsePos.y < 0) // Since radius function can get a higher range, so fix it to avoid "StartControl" followed by "StopControl" on a next think!
+			{
+				m_pTank->m_vecControllerUsePos.y = -m_pTank->m_vecControllerUsePos.y;
+			}
+		}
+		else
+		{
+			m_pTank->m_vecControllerUsePos.y = MAX_PLAYER_USE_TANK_RADIUS;
+		}
+#endif
 	}
 
 	// if this fails,  most likely means save/restore hasn't worked properly
