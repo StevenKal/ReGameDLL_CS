@@ -3862,9 +3862,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(RoundRespawn)()
 
 #ifdef REGAMEDLL_FIXES
 	if (m_bPunishedForTK && pev->health > 0)
-	{
-		ClientKill(ENT(pev));
-	}
+		Kill();
 #endif
 
 }
@@ -4030,7 +4028,12 @@ void CBasePlayer::PlayerUse()
 			CBaseEntity *pTrain = Instance(pev->groundentity);
 			if (pTrain && pTrain->Classify() == CLASS_VEHICLE)
 			{
+#ifdef REGAMEDLL_ADD
+				if (legacy_vehicle_block.value)
+					((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#else
 				((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#endif
 			}
 			return;
 		}
@@ -4572,7 +4575,12 @@ void EXT_FUNC CBasePlayer::__API_HOOK(PreThink)()
 			{
 				m_afPhysicsFlags &= ~PFLAG_ONTRAIN;
 				m_iTrain = (TRAIN_NEW | TRAIN_OFF);
+#ifdef REGAMEDLL_ADD
+				if (legacy_vehicle_block.value)
+					((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#else
 				((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#endif
 				return;
 			}
 		}
@@ -4581,7 +4589,12 @@ void EXT_FUNC CBasePlayer::__API_HOOK(PreThink)()
 			// Turn off the train if you jump, strafe, or the train controls go dead
 			m_afPhysicsFlags &= ~PFLAG_ONTRAIN;
 			m_iTrain = (TRAIN_NEW | TRAIN_OFF);
+#ifdef REGAMEDLL_ADD
+			if (legacy_vehicle_block.value)
+				((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#else
 			((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
+#endif
 			return;
 		}
 
@@ -4720,7 +4733,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 		{
 			switch (i)
 			{
-			case ITBD_PARALLYZE:
+			case ITBD_PARALYZE:
 				// UNDONE - flag movement as half-speed
 				bDuration = PARALYZE_DURATION;
 				break;
@@ -8018,6 +8031,7 @@ CBaseEntity *EXT_FUNC CBasePlayer::__API_HOOK(DropPlayerItem)(const char *pszIte
 			pWeaponBox->m_bIsBomb = true;
 			pWeaponBox->SetThink(&CWeaponBox::BombThink);
 			pWeaponBox->pev->nextthink = gpGlobals->time + 1.0f;
+			pWeaponBox->SetLastValidHeldC4Position(((CC4 *)pWeapon)->GetLastValidHeldPosition());
 
 			if (TheCSBots())
 			{
@@ -10034,7 +10048,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(OnSpawnEquip)(bool addDefault, bool equipG
 	}
 
 #ifdef REGAMEDLL_ADD
-	if(!m_bIsVIP)
+	if (!m_bIsVIP)
 	{
 		switch (static_cast<ArmorType>((int)free_armor.value))
 		{
@@ -10235,6 +10249,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(SetSpawnProtection)(float flProtectionTime
 #ifdef REGAMEDLL_ADD
 	if (respawn_immunity_effects.value > 0)
 	{
+		CSPlayer()->m_bSpawnProtectionEffects = true;
 		pev->rendermode = kRenderTransAdd;
 		pev->renderamt  = 100.0f;
 
@@ -10256,12 +10271,11 @@ LINK_HOOK_CLASS_VOID_CHAIN2(CBasePlayer, RemoveSpawnProtection)
 void CBasePlayer::__API_HOOK(RemoveSpawnProtection)()
 {
 #ifdef REGAMEDLL_ADD
-	if (respawn_immunity_effects.value > 0)
+	if (CSPlayer()->m_bSpawnProtectionEffects)
 	{
-		if (pev->rendermode == kRenderTransAdd &&
-			pev->renderamt == 100.0f)
+		if (pev->rendermode == kRenderTransAdd && pev->renderamt == 100.0f)
 		{
-			pev->renderamt  = 255.0f;
+			pev->renderamt = 255.0f;
 			pev->rendermode = kRenderNormal;
 		}
 
@@ -10269,6 +10283,8 @@ void CBasePlayer::__API_HOOK(RemoveSpawnProtection)()
 			WRITE_BYTE(STATUSICON_HIDE);
 			WRITE_STRING("suithelmet_full");
 		MESSAGE_END();
+
+		CSPlayer()->m_bSpawnProtectionEffects = false;
 	}
 
 	CSPlayer()->m_flSpawnProtectionEndTime = 0.0f;
@@ -10298,4 +10314,24 @@ void EXT_FUNC CBasePlayer::__API_HOOK(DropIdlePlayer)(const char *reason)
 #else
 	SERVER_COMMAND(UTIL_VarArgs("kick \"%s\"\n", STRING(pev->netname)));
 #endif // #ifdef REGAMEDLL_FIXES
+}
+
+bool CBasePlayer::Kill()
+{
+	if (GetObserverMode() != OBS_NONE)
+		return false;
+	
+	if (m_iJoiningState != JOINED)
+		return false;
+	
+	m_LastHitGroup = HITGROUP_GENERIC;
+
+	// have the player kill himself
+	pev->health = 0.0f;
+	Killed(pev, GIB_NEVER);
+
+	if (CSGameRules()->m_pVIP == this)
+		CSGameRules()->m_iConsecutiveVIP = 10;
+	
+	return true;
 }

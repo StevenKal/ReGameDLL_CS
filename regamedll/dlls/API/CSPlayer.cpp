@@ -112,8 +112,10 @@ EXT_FUNC bool CCSPlayer::JoinTeam(TeamName team)
 
 	if (pPlayer->pev->deadflag == DEAD_NO)
 	{
-		ClientKill(pPlayer->edict());
-		pPlayer->pev->frags++;
+		if (pPlayer->Kill())
+		{
+			pPlayer->pev->frags++;
+		}
 	}
 
 	MESSAGE_BEGIN(MSG_ALL, gmsgScoreInfo);
@@ -541,6 +543,7 @@ void CCSPlayer::Reset()
 	m_bGameForcingRespawn = false;
 	m_bAutoBunnyHopping = false;
 	m_bMegaBunnyJumping = false;
+	m_bSpawnProtectionEffects = false;
 }
 
 void CCSPlayer::OnSpawn()
