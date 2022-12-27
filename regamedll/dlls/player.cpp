@@ -4008,6 +4008,11 @@ void CBasePlayer::PlayerUse()
 	if (!((pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE))
 		return;
 
+#ifdef REGAMEDLL_FIXES
+	if (IsReloading())
+		return;
+#endif
+
 	// Hit Use on a train?
 	if (m_afButtonPressed & IN_USE)
 	{
@@ -5058,6 +5063,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(PostThink)()
 		}
 	}
 
+#ifdef REGAMEDLL_FIXES
+	// Handle use events
+	PlayerUse();
+	ImpulseCommands();
+#endif
 	// do weapon stuff
 	ItemPostFrame();
 
@@ -6314,8 +6324,10 @@ void EXT_FUNC CBasePlayer::__API_HOOK(ImpulseCommands)()
 {
 	TraceResult tr;
 
+#ifndef REGAMEDLL_FIXES
 	// Handle use events
 	PlayerUse();
+#endif
 
 	int iImpulse = pev->impulse;
 
@@ -6933,7 +6945,9 @@ void CBasePlayer::ItemPostFrame()
 #endif
 		return;
 
+#ifndef REGAMEDLL_FIXES
 	ImpulseCommands();
+#endif
 
 	if (m_pActiveItem)
 		m_pActiveItem->ItemPostFrame();
@@ -6941,7 +6955,7 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory(int iAmmoIndex)
 {
-	if (iAmmoIndex == -1)
+	if (iAmmoIndex <= -1)
 		return -1;
 
 	return m_rgAmmo[iAmmoIndex];
