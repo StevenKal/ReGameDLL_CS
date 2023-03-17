@@ -548,6 +548,7 @@ void CCSPlayer::Reset()
 	m_bAutoBunnyHopping = false;
 	m_bMegaBunnyJumping = false;
 	m_bPlantC4Anywhere = false;
+	m_bSpawnProtectionEffects = false;
 }
 
 void CCSPlayer::OnSpawn()
