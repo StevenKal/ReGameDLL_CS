@@ -164,8 +164,8 @@ cvar_t sv_autobunnyhopping               = { "sv_autobunnyhopping", "0", 0, 0.0f
 cvar_t sv_enablebunnyhopping             = { "sv_enablebunnyhopping", "0", 0, 0.0f, nullptr };
 cvar_t plant_c4_anywhere                 = { "mp_plant_c4_anywhere", "0", 0, 0.0f, nullptr };
 cvar_t give_c4_frags                     = { "mp_give_c4_frags", "3", 0, 3.0f, nullptr };
-
-cvar_t hostages_rescued_ratio = { "mp_hostages_rescued_ratio", "1.0", 0, 1.0f, nullptr };
+cvar_t hostages_rescued_ratio            = { "mp_hostages_rescued_ratio", "1.0", 0, 1.0f, nullptr };
+cvar_t legacy_vehicle_block              = { "mp_legacy_vehicle_block", "1", 0, 0.0f, nullptr };
 
 // Note: Just for my plugins & cie.
 cvar_t game_version_personnal            = { "game_version_personnal", "1.3.0-public-AMXModDev", FCVAR_SERVER, 0.0f, nullptr };
@@ -412,8 +412,8 @@ void EXT_FUNC GameDLLInit()
 	CVAR_REGISTER(&sv_enablebunnyhopping);
 	CVAR_REGISTER(&plant_c4_anywhere);
 	CVAR_REGISTER(&give_c4_frags);
-
 	CVAR_REGISTER(&hostages_rescued_ratio);
+	CVAR_REGISTER(&legacy_vehicle_block);
 
 	CVAR_REGISTER(&game_version_personnal);
 
