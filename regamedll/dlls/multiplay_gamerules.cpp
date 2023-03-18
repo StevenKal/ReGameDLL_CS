@@ -1495,7 +1495,8 @@ bool CHalfLifeMultiplay::HostageRescueRoundEndCheck()
 	// There are no hostages alive.. check to see if the CTs have rescued atleast 50% of them.
 	if (!bHostageAlive && hostagesCount > 0)
 	{
-	@@ -1494,6 +1500,7 @@ bool CHalfLifeMultiplay::HostageRescueRoundEndCheck()
+		if (m_iHostagesRescued >= (hostagesCount * 0.5f))
+		{
 			return OnRoundEnd_Intercept(WINSTATUS_CTS, ROUND_ALL_HOSTAGES_RESCUED, GetRoundRestartDelay());
 		}
 	}
