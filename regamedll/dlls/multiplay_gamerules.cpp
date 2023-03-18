@@ -1486,6 +1486,12 @@ bool CHalfLifeMultiplay::HostageRescueRoundEndCheck()
 		}
 	}
 
+#ifdef REGAMEDLL_ADD
+	if (hostagesCount > 0 && m_iHostagesRescued >= (hostagesCount * Q_min(hostages_rescued_ratio.value, 1.0f)))
+	{
+		return OnRoundEnd_Intercept(WINSTATUS_CTS, ROUND_ALL_HOSTAGES_RESCUED, GetRoundRestartDelay());
+	}
+#else
 	// There are no hostages alive.. check to see if the CTs have rescued atleast 50% of them.
 	if (!bHostageAlive && hostagesCount > 0)
 	{
@@ -1494,6 +1500,7 @@ bool CHalfLifeMultiplay::HostageRescueRoundEndCheck()
 			return OnRoundEnd_Intercept(WINSTATUS_CTS, ROUND_ALL_HOSTAGES_RESCUED, GetRoundRestartDelay());
 		}
 	}
+#endif
 
 	return false;
 }
@@ -2028,6 +2035,10 @@ void EXT_FUNC CHalfLifeMultiplay::__API_HOOK(RestartRound)()
 #endif
 
 			pPlayer->RoundRespawn();
+
+#ifdef REGAMEDLL_ADD
+			FireTargets("game_entity_restart", pPlayer, nullptr, USE_TOGGLE, 0.0);
+#endif
 		}
 
 		// Gooseman : The following code fixes the HUD icon bug
@@ -2066,6 +2077,10 @@ void EXT_FUNC CHalfLifeMultiplay::__API_HOOK(RestartRound)()
 	m_bTargetBombed = m_bBombDefused = false;
 	m_bLevelInitialized = false;
 	m_bCompleteReset = false;
+
+#ifdef REGAMEDLL_ADD
+	FireTargets("game_round_start", nullptr, nullptr, USE_TOGGLE, 0.0);
+#endif
 }
 
 BOOL CHalfLifeMultiplay::IsThereABomber()
@@ -3919,7 +3934,11 @@ void EXT_FUNC CHalfLifeMultiplay::__API_HOOK(PlayerKilled)(CBasePlayer *pVictim,
 	else if (ktmp && ktmp->Classify() == CLASS_VEHICLE)
 	{
 		CBasePlayer *pDriver = static_cast<CBasePlayer *>(((CFuncVehicle *)ktmp)->m_pDriver);
+#ifdef REGAMEDLL_FIXES
+		if (pDriver && !pDriver->has_disconnected)
+#else
 		if (pDriver)
+#endif
 		{
 			pKiller = pDriver->pev;
 			peKiller = static_cast<CBasePlayer *>(pDriver);

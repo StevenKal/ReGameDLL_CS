@@ -74,7 +74,11 @@ ReGameFuncs_t g_ReGameApiFuncs = {
 	PlantBomb_api,
 
 	SpawnHeadGib_api,
-	SpawnRandomGibs_api
+	SpawnRandomGibs_api,
+
+	UTIL_RestartOther,
+	UTIL_ResetEntities,
+	UTIL_RemoveOther,
 };
 
 GAMEHOOK_REGISTRY(CBasePlayer_Spawn);
@@ -206,6 +210,8 @@ GAMEHOOK_REGISTRY(CBasePlayer_Observer_FindNextPlayer);
 GAMEHOOK_REGISTRY(CBasePlayer_Pain);
 GAMEHOOK_REGISTRY(CBasePlayer_DeathSound);
 GAMEHOOK_REGISTRY(CBasePlayer_JoiningThink);
+
+GAMEHOOK_REGISTRY(FreeGameRules);
 
 int CReGameApi::GetMajorVersion() {
 	return REGAMEDLL_API_VERSION_MAJOR;
