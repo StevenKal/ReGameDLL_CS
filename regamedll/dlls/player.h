@@ -643,6 +643,7 @@ public:
 	void RemoveSpawnProtection();
 	void UseEmpty();
 	void DropIdlePlayer(const char *reason);
+	bool Kill();
 
 	// templates
 	template<typename T = CBasePlayerItem, typename Functor>
