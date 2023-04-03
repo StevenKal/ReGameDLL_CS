@@ -1298,8 +1298,11 @@ CWeaponBox *EXT_FUNC __API_HOOK(CreateWeaponBox)(CBasePlayerItem *pItem, CBasePl
 		bool exhaustibleAmmo = (pItem->iFlags() & ITEM_FLAG_EXHAUSTIBLE) == ITEM_FLAG_EXHAUSTIBLE;
 		if (exhaustibleAmmo || packAmmo)
 		{
+#ifndef REGAMEDLL_ADD
 			pWeaponBox->PackAmmo(MAKE_STRING(pItem->pszAmmo1()), pPlayerOwner->m_rgAmmo[pItem->PrimaryAmmoIndex()]);
-
+#else
+			pWeaponBox->GiveAmmo(pPlayerOwner->m_rgAmmo[pItem->PrimaryAmmoIndex()], (char *)pItem->pszAmmo1(), pItem->iMaxAmmo1());
+#endif
 			if (exhaustibleAmmo)
 			{
 				pPlayerOwner->m_rgAmmo[pItem->PrimaryAmmoIndex()] = 0;
@@ -2190,8 +2193,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 	pev->gamestate = HITGROUP_SHIELD_DISABLED;
 	m_bShieldDrawn = false;
 
+#ifdef REGAMEDLL_FIXES
+	pev->flags &= ~(FL_ONGROUND | FL_FROZEN);
+#else
 	pev->flags &= ~FL_ONGROUND;
-
+#endif
 #ifdef REGAMEDLL_FIXES
 	// FlashlightTurnOff()
 	pev->effects &= ~EF_DIMLIGHT;
