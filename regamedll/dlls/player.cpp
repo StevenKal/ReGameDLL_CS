@@ -2190,8 +2190,11 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 	pev->gamestate = HITGROUP_SHIELD_DISABLED;
 	m_bShieldDrawn = false;
 
+#ifdef REGAMEDLL_FIXES
+	pev->flags &= ~(FL_ONGROUND | FL_FROZEN);
+#else
 	pev->flags &= ~FL_ONGROUND;
-
+#endif
 #ifdef REGAMEDLL_FIXES
 	// FlashlightTurnOff()
 	pev->effects &= ~EF_DIMLIGHT;
