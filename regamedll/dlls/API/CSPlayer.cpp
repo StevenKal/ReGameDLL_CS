@@ -215,34 +215,45 @@ EXT_FUNC bool CCSPlayer::RemovePlayerItemEx(const char* pszItemName, bool bRemov
 	auto pItem = GetItemByName(pszItemName);
 	if (pItem)
 	{
-		CBasePlayerItem *pActiveItem = pPlayer->m_pActiveItem;
+		if (pItem->IsWeapon())
+		{
+			// These weapons have a unique type of ammo that is used only by them
+			// If a weapon is removed, its ammo is also reduced, unless the ammo can be used by another weapon
+			if (!bRemoveAmmo && (IsGrenadeWeapon(pItem->m_iId) || pItem->m_iId == WEAPON_C4))
+			{
+				if (pPlayer->m_rgAmmo[pItem->PrimaryAmmoIndex()] > 0)
+					pPlayer->m_rgAmmo[pItem->PrimaryAmmoIndex()]--;
 
-		if (pPlayer->RemovePlayerItem(pItem)) {
-			pPlayer->pev->weapons &= ~(1 << pItem->m_iId);
-			// No more weapon.
-			if ((pPlayer->pev->weapons & ~(1 << WEAPON_SUIT)) == 0) {
-				pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
+				// Hold the weapon until it runs out of ammo
+				if (pPlayer->m_rgAmmo[pItem->PrimaryAmmoIndex()] > 0)
+					return true; // ammo was reduced, this will be considered a successful result
 			}
 
-			pItem->Kill();
-
-			if (pItem->IsWeapon()) {
-				if (pItem == pActiveItem) {
-					g_pGameRules->GetNextBestWeapon(pPlayer, pActiveItem);
-				}
-
-				// Critical if we share BP ammo with others, a mode like <0|1|2> where "1" check if no other weapon use such ammo type would have been better.
-				if (bRemoveAmmo || (pItem->iFlags() & ITEM_FLAG_EXHAUSTIBLE)) {
-					pPlayer->m_rgAmmo[ pItem->PrimaryAmmoIndex() ] = 0;
-				}
+			if (pItem == pPlayer->m_pActiveItem) {
+				((CBasePlayerWeapon *)pItem)->RetireWeapon();
 			}
 
+			if (bRemoveAmmo) {
+				pPlayer->m_rgAmmo[ pItem->PrimaryAmmoIndex() ] = 0;
+			}
+		}
+
+		if (pPlayer->RemovePlayerItem(pItem))
+		{
 			if (FClassnameIs(pItem->pev, "weapon_c4")) {
 				pPlayer->m_bHasC4 = false;
 				pPlayer->pev->body = 0;
 				pPlayer->SetBombIcon(FALSE);
 				pPlayer->SetProgressBarTime(0);
 			}
+
+			pPlayer->pev->weapons &= ~(1 << pItem->m_iId);
+			// No more weapon
+			if ((pPlayer->pev->weapons & ~(1 << WEAPON_SUIT)) == 0) {
+				pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
+			}
+
+			pItem->Kill();
 
 			if (!pPlayer->m_rgpPlayerItems[PRIMARY_WEAPON_SLOT]) {
 				pPlayer->m_bHasPrimary = false;
