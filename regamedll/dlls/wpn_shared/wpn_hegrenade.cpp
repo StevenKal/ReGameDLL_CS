@@ -148,7 +148,7 @@ bool CHEGrenade::ShieldSecondaryFire(int iUpAnim, int iDownAnim)
 
 void CHEGrenade::SecondaryAttack()
 {
-	ShieldSecondaryFire(SHIELDGUN_DRAW, SHIELDGUN_DRAWN_IDLE);
+	ShieldSecondaryFire(SHIELDGREN_UP, SHIELDGREN_DOWN);
 }
 
 void CHEGrenade::SetPlayerShieldAnim()
@@ -260,7 +260,7 @@ void CHEGrenade::WeaponIdle()
 
 			if (m_iWeaponState & WPNSTATE_SHIELD_DRAWN)
 			{
-				SendWeaponAnim(SHIELDREN_IDLE, UseDecrement() != FALSE);
+				SendWeaponAnim(SHIELDGREN_IDLE, UseDecrement() != FALSE);
 			}
 		}
 		else
