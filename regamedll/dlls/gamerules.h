@@ -31,21 +31,22 @@
 #include "game_shared/voice_gamemgr.h"
 #include "cmdhandler.h"
 
-const int MAX_RULE_BUFFER       = 1024;
-const int MAX_VOTE_MAPS         = 100;
-const int MAX_VIP_QUEUES        = 5;
-const int MAX_MONEY_THRESHOLD   = 999999; // allowable money limit in the game that can be drawn on the HUD
+const int MAX_RULE_BUFFER        = 1024;
+const int MAX_VOTE_MAPS          = 100;
+const int MAX_VIP_QUEUES         = 5;
+const int MAX_MONEY_THRESHOLD    = 999999; // allowable money limit in the game that can be drawn on the HUD
 
-const int MAX_MOTD_CHUNK        = 60;
-const int MAX_MOTD_LENGTH       = 1536;	// (MAX_MOTD_CHUNK * 4)
+const int MAX_MOTD_CHUNK         = 60;
+const int MAX_MOTD_LENGTH        = 1536;	// (MAX_MOTD_CHUNK * 4)
 
-const float ITEM_RESPAWN_TIME   = 30.0f;
-const float WEAPON_RESPAWN_TIME = 20.0f;
-const float AMMO_RESPAWN_TIME   = 20.0f;
-const float ROUND_RESPAWN_TIME  = 20.0f;
-const float ROUND_BEGIN_DELAY   = 5.0f;	// delay before beginning new round
-const float ITEM_KILL_DELAY     = 300.0f;
-const float RADIO_TIMEOUT       = 1.5f;
+const float ITEM_RESPAWN_TIME    = 30.0f;
+const float WEAPON_RESPAWN_TIME  = 20.0f;
+const float AMMO_RESPAWN_TIME    = 20.0f;
+const float ROUND_RESPAWN_TIME   = 20.0f;
+const float ROUND_BEGIN_DELAY    = 5.0f;	// delay before beginning new round
+const float ITEM_KILL_DELAY      = 300.0f;
+const float RADIO_TIMEOUT        = 1.5f;
+const float DEATH_ANIMATION_TIME = 3.0f;
 
 const int MAX_INTERMISSION_TIME = 120;	// longest the intermission can last, in seconds
 
@@ -206,7 +207,6 @@ enum
 	SCENARIO_BLOCK_PRISON_ESCAPE_TIME      = BIT(8), // flag "i"
 	SCENARIO_BLOCK_BOMB_TIME               = BIT(9), // flag "j"
 	SCENARIO_BLOCK_HOSTAGE_RESCUE_TIME     = BIT(10), // flag "k"
-	
 };
 
 // Player relationship return codes
@@ -336,6 +336,7 @@ public:
 	inline void SetGameOver() { m_bGameOver = true; }
 	static float GetItemKillDelay();
 	static float GetRadioTimeout();
+	static float GetDyingTime();
 
 public:
 	BOOL m_bFreezePeriod;	// TRUE at beginning of round, set to FALSE when the period expires
@@ -918,6 +919,15 @@ inline float CGameRules::GetRadioTimeout()
 	return radio_timeout.value;
 #else
 	return RADIO_TIMEOUT;
+#endif
+}
+
+inline float CGameRules::GetDyingTime()
+{
+#ifdef REGAMEDLL_ADD
+	return dying_time.value;
+#else
+	return DEATH_ANIMATION_TIME;
 #endif
 }
 
