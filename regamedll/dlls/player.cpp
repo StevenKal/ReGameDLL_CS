@@ -2292,6 +2292,8 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 		UTIL_ScreenFade(this, Vector(0, 0, 0), 3, 3, 255, (FFADE_OUT | FFADE_STAYOUT));
 	}
 #else
+
+	float flDyingDuration = GetSequenceDuration() + CGameRules::GetDyingTime();
 	switch ((int)fadetoblack.value)
 	{
 	default:
@@ -2307,12 +2309,12 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 
 		break;
 	}
-	case 1:
+	case FADETOBLACK_STAY:
 	{
-		UTIL_ScreenFade(this, Vector(0, 0, 0), 3, 3, 255, (FFADE_OUT | FFADE_STAYOUT));
+		UTIL_ScreenFade(this, Vector(0, 0, 0), 0.8f, flDyingDuration, 255, (FFADE_OUT | FFADE_STAYOUT));
 		break;
 	}
-	case 2:
+	case FADETOBLACK_AT_DYING:
 	{
 		pev->iuser1 = OBS_CHASE_FREE;
 		pev->iuser2 = ENTINDEX(edict());
@@ -2323,15 +2325,7 @@ void EXT_FUNC CBasePlayer::__API_HOOK(Killed)(entvars_t *pevAttacker, int iGib)
 		MESSAGE_BEGIN(MSG_ONE, gmsgADStop, nullptr, pev);
 		MESSAGE_END();
 
-		for (int i = 1; i <= gpGlobals->maxClients; i++)
-		{
-			CBasePlayer* pObserver = UTIL_PlayerByIndex(i);
-
-			if (pObserver == this || (pObserver && pObserver->IsObservingPlayer(this)))
-			{
-				UTIL_ScreenFade(pObserver, Vector(0, 0, 0), 1, 4, 255, (FFADE_OUT));
-			}
-		}
+		UTIL_ScreenFade(this, Vector(0, 0, 0), 0.8f, flDyingDuration, 255, (FFADE_OUT));
 
 		break;
 	}
@@ -3857,7 +3851,7 @@ void CBasePlayer::PlayerDeathThink()
 	{
 		// if the player has been dead for one second longer than allowed by forcerespawn,
 		// forcerespawn isn't on. Send the player off to an intermission camera until they choose to respawn.
-		if (g_pGameRules->IsMultiplayer() && HasTimePassedSinceDeath(3.0f) && !(m_afPhysicsFlags & PFLAG_OBSERVER))
+		if (g_pGameRules->IsMultiplayer() && HasTimePassedSinceDeath(CGameRules::GetDyingTime()) && !(m_afPhysicsFlags & PFLAG_OBSERVER))
 		{
 			// Send message to everybody to spawn a corpse.
 			SpawnClientSideCorpse();
@@ -8814,6 +8808,23 @@ int GetPlayerGaitsequence(const edict_t *pEdict)
 	return pPlayer->m_iGaitsequence;
 }
 
+float CBasePlayer::GetDyingAnimationDuration() const
+{
+	float animDuration = -1.0f;
+
+	if (CGameRules::GetDyingTime() < DEATH_ANIMATION_TIME) // a short time, timeDiff estimates to be small
+	{
+		float flSequenceDuration = GetSequenceDuration();
+		if (flSequenceDuration > 0)
+			animDuration = flSequenceDuration;
+	}
+
+	if (animDuration <= 0)
+		animDuration = CGameRules::GetDyingTime(); // in case of failure
+
+	return animDuration;
+}
+
 void CBasePlayer::SpawnClientSideCorpse()
 {
 #ifdef REGAMEDLL_FIXES
@@ -8821,9 +8832,7 @@ void CBasePlayer::SpawnClientSideCorpse()
 	if (pev->effects & EF_NODRAW)
 		return;
 
-	// do not make a corpse if the player goes to respawn.
-	if (pev->deadflag == DEAD_RESPAWNABLE)
-		return;
+	// deadflag == DEAD_RESPAWNABLE already checked before
 #endif
 
 #ifdef REGAMEDLL_ADD
@@ -8833,6 +8842,27 @@ void CBasePlayer::SpawnClientSideCorpse()
 
 	char *infobuffer = GET_INFO_BUFFER(edict());
 	char *pModel = GET_KEY_VALUE(infobuffer, "model");
+	float timeDiff = pev->animtime - gpGlobals->time;
+
+#ifdef REGAMEDLL_ADD 
+	if (CGameRules::GetDyingTime() < DEATH_ANIMATION_TIME) // a short time, timeDiff estimates to be small
+	{
+		float animDuration = GetDyingAnimationDuration();
+
+		// client receives a negative value 
+		animDuration *= -1.0; 
+
+		if (animDuration < timeDiff) // reasonable way to fix client side unfinished sequence bug
+		{
+			// by some reason, if client receives a value less 
+			// than "(negative current sequence time) * 100" 
+			// animation will play visually awkward
+			// at this function call time, player death animation 
+			// has already finished so we can safely fake it
+			timeDiff = animDuration; 
+		}
+	}
+#endif
 
 	MESSAGE_BEGIN(MSG_ALL, gmsgSendCorpse);
 		WRITE_STRING(pModel);
@@ -8842,14 +8872,17 @@ void CBasePlayer::SpawnClientSideCorpse()
 		WRITE_COORD(pev->angles.x);
 		WRITE_COORD(pev->angles.y);
 		WRITE_COORD(pev->angles.z);
-		WRITE_LONG((pev->animtime - gpGlobals->time) * 100);
+		WRITE_LONG(timeDiff * 100);
 		WRITE_BYTE(pev->sequence);
 		WRITE_BYTE(pev->body);
 		WRITE_BYTE(m_iTeam);
 		WRITE_BYTE(entindex());
 	MESSAGE_END();
 
+#ifndef REGAMEDLL_FIXES
+	// already defined in StartDeathCam
 	m_canSwitchObserverModes = true;
+#endif 
 
 	if (TheTutor)
 	{
@@ -9898,7 +9931,7 @@ void CBasePlayer::UpdateLocation(bool forceUpdate)
 
 	const char *placeName = "";
 
-	if (pev->deadflag == DEAD_NO && AreRunningCZero())
+	if (pev->deadflag == DEAD_NO && AreBotsAllowed())
 	{
 		// search the place name where is located the player
 		Place playerPlace = TheNavAreaGrid.GetPlace(&pev->origin);
