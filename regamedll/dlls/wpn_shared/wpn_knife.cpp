@@ -19,8 +19,10 @@ void CKnife::Spawn()
 
 	m_flStabDistance = KNIFE_STAB_DISTANCE;
 	m_flSwingDistance = KNIFE_SWING_DISTANCE;
+
+	m_flBackStabMultiplier = KNIFE_BACKSTAB_MULTIPLIER;
 #endif
-	
+
 	// Get ready to fall down
 	FallInit();
 
@@ -53,6 +55,8 @@ void CKnife::Precache()
 
 	m_flStabDistance = KNIFE_STAB_DISTANCE;
 	m_flSwingDistance = KNIFE_SWING_DISTANCE;
+
+	m_flBackStabMultiplier = KNIFE_BACKSTAB_MULTIPLIER;
 #endif
 }
 
