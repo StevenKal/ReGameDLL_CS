@@ -645,6 +645,10 @@ typedef IHookChainRegistryClassImpl<void, CBasePlayer> CReGameHookRegistry_CBase
 typedef IHookChainImpl<void, CGameRules **> CReGameHook_FreeGameRules;
 typedef IHookChainRegistryImpl<void, CGameRules **> CReGameHookRegistry_FreeGameRules;
 
+// PM_LadderMove hook
+typedef IHookChainImpl<void, struct physent_s *> CReGameHook_PM_LadderMove;
+typedef IHookChainRegistryImpl<void, struct physent_s *> CReGameHookRegistry_PM_LadderMove;
+
 class CReGameHookchains: public IReGameHookchains {
 public:
 	// CBasePlayer virtual
@@ -779,6 +783,7 @@ public:
 	CReGameHookRegistry_CBasePlayer_JoiningThink m_CBasePlayer_JoiningThink;
 
 	CReGameHookRegistry_FreeGameRules m_FreeGameRules;
+	CReGameHookRegistry_PM_LadderMove m_PM_LadderMove;
 
 public:
 	virtual IReGameHookRegistry_CBasePlayer_Spawn *CBasePlayer_Spawn();
@@ -912,6 +917,7 @@ public:
 	virtual IReGameHookRegistry_CBasePlayer_JoiningThink *CBasePlayer_JoiningThink();
 
 	virtual IReGameHookRegistry_FreeGameRules *FreeGameRules();
+	virtual IReGameHookRegistry_PM_LadderMove *PM_LadderMove();
 };
 
 C_DLLEXPORT CReGameHookchains g_ReGameHookchains;
