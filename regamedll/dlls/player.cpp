@@ -7950,9 +7950,12 @@ void CBasePlayer::UpdateStatusBar()
 	UTIL_MakeVectors(pev->v_angle + pev->punchangle);
 
 	Vector vecSrc = EyePosition();
-	Vector vecEnd = vecSrc + (gpGlobals->v_forward * ((pev->flags & FL_SPECTATOR) != 0 ? MAX_SPEC_ID_RANGE : MAX_ID_RANGE));
+	Vector vecEnd = vecSrc + (gpGlobals->v_forward * (g_psv_zmax ? g_psv_zmax->value : ((pev->flags & FL_SPECTATOR) != 0 ? MAX_SPEC_ID_RANGE : MAX_ID_RANGE)));
 
+	int iSolidityTypeArray[MAX_CLIENTS + 1];
+	UTIL_ManageClientsSolidity(true, 1, SOLID_SLIDEBOX, iSolidityTypeArray); // Store in array & set solidity from variable.
 	UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, edict(), &tr);
+	UTIL_ManageClientsSolidity(false, 2, 0, iSolidityTypeArray); // Restore solidity from array.
 
 	if (tr.flFraction != 1.0f)
 	{
