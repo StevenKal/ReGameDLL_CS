@@ -191,8 +191,8 @@ void GameDLL_Version_f()
 
 	// Offsets control.
 	SERVER_PRINT(UTIL_VarArgs("CCSEntity offsets: %d/%d/%d.\n", offsetof(CCSEntity, m_pContainingEntity), offsetof(CCSEntity, m_ucDmgPenetrationLevel), offsetof(CCSEntity, m_pevLastInflictor)));
-	SERVER_PRINT(UTIL_VarArgs("CCSPlayer offsets: %d/%d/%d + %d/%d/%d/%d/%d.\n",
-		offsetof(CCSPlayer, m_szModel), offsetof(CCSPlayer, m_bCanShootOverride), offsetof(CCSPlayer, m_flDuckSpeedMultiplier),
+	SERVER_PRINT(UTIL_VarArgs("CCSPlayer offsets: %d/%d/%d/%d/%d + %d/%d/%d/%d/%d.\n",
+		offsetof(CCSPlayer, m_szModel), offsetof(CCSPlayer, m_bCanShootOverride), offsetof(CCSPlayer, m_bSpawnProtectionEffects), offsetof(CCSPlayer, m_flJumpHeight), offsetof(CCSPlayer, m_flDuckSpeedMultiplier),
 		offsetof(CCSPlayer, m_iUserID), offsetof(CCSPlayer, m_DamageList), offsetof(CCSPlayer, m_iNumKilledByUnanswered), offsetof(CCSPlayer, m_bPlayerDominated), offsetof(CCSPlayer, m_iGibDamageThreshold)));
 	SERVER_PRINT(UTIL_VarArgs("CCSPlayerItem offsets: %d.\n", offsetof(CCSPlayerItem, m_ItemInfo)));
 	SERVER_PRINT(UTIL_VarArgs("CCSPlayerWeapon offsets: %d/%d.\n", offsetof(CCSPlayerWeapon, m_iStateSecondaryAttack), offsetof(CCSPlayerWeapon, m_flBaseDamage)));
